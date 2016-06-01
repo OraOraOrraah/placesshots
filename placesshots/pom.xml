@@ -15,12 +15,35 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.kugiojotaro</groupId>
+    <groupId>placesshots</groupId>
     <artifactId>placesshots</artifactId>
     <packaging>war</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>Places Shots</name>
-    
+    <name>placesshots</name>
+    <repositories>
+		<repository>
+			<id>eap</id>
+			<url>http://maven.repository.redhat.com/techpreview/all</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>eap</id>
+			<url>http://maven.repository.redhat.com/techpreview/all</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
     <dependencies>
         <dependency>
             <groupId>log4j</groupId>
@@ -367,25 +390,24 @@
 		</dependency>        
     </dependencies>
     
-    <build>
-    	<finalName>placesshots</finalName>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
-            </extension>
-        </extensions>
-        <plugins>
-	        <plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <version>3.1</version>
-	            <configuration>
-	                <source>1.7</source>
-	                <target>1.7</target>
-	            </configuration>
-	        </plugin>
+<!--     <build> -->
+<!--         <extensions> -->
+<!--             <extension> -->
+<!--                 <groupId>org.apache.maven.wagon</groupId> -->
+<!--                 <artifactId>wagon-webdav</artifactId> -->
+<!--                 <version>1.0-beta-2</version> -->
+<!--             </extension> -->
+<!--         </extensions> -->
+<!--         <plugins> -->
+<!-- 	        <plugin> -->
+<!-- 	            <groupId>org.apache.maven.plugins</groupId> -->
+<!-- 	            <artifactId>maven-compiler-plugin</artifactId> -->
+<!-- 	            <version>3.1</version> -->
+<!-- 	            <configuration> -->
+<!-- 	                <source>1.7</source> -->
+<!-- 	                <target>1.7</target> -->
+<!-- 	            </configuration> -->
+<!-- 	        </plugin> -->
 <!-- 	        <plugin> -->
 <!-- 				<groupId>org.apache.tomcat.maven</groupId> -->
 <!-- 				<artifactId>tomcat7-maven-plugin</artifactId> -->
@@ -395,8 +417,35 @@
 <!-- 					<path>/placesshots</path> -->
 <!-- 				</configuration> -->
 <!-- 			</plugin> -->
-    	</plugins>
-    </build>
+<!--     	</plugins> -->
+<!--     </build> -->
+
+<profiles>
+		<profile>
+			<!-- When built in OpenShift the 'openshift' profile will be used when 
+				invoking mvn. -->
+			<!-- Use this profile for any OpenShift specific customization your app 
+				will need. -->
+			<!-- By default that is to put the resulting archive into the 'webapps' 
+				folder. -->
+			<!-- http://maven.apache.org/guides/mini/guide-building-for-different-environments.html -->
+			<id>openshift</id>
+			<build>
+				<finalName>placesshots</finalName>
+				<plugins>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>2.1.1</version>
+						<configuration>
+							<outputDirectory>webapps</outputDirectory>
+							<warName>ROOT</warName>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
 <!--     <scm> -->
 <!--         <connection>scm:git:https://github.com/CloudBees-community/tomcat7-log4j-clickstart.git</connection> -->
 <!--       <tag>HEAD</tag> -->
