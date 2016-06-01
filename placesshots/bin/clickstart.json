@@ -1,0 +1,24 @@
+{
+    "id": "tomcat7-log4j-clickstart",
+    "name": "Tomcat 7 with Log4j",
+    "source": "git://github.com/CloudBees-community/tomcat7-log4j-clickstart.git",
+    "description" : "Deploy and troubleshoot your web application with Log4j on Tomcat 7",
+    "doc-url" : "https://github.com/CloudBees-community/tomcat7-log4j-clickstart/blob/master/README.md",
+    "app-package": "http://repository-community.forge.cloudbees.com/release/localdomain/localhost/tomcat7-log4j-clickstart/1.0/tomcat7-log4j-clickstart-1.0.war",
+    "icon" : "https://raw.github.com/CloudBees-community/tomcat7-log4j-clickstart/master/icon.png",
+
+    "supported-by" : "cloudbees",
+    "order" : 100,
+
+    "runtime": {
+        "type": "tomcat7",
+        "app-variables": {
+            "log4j.debug": "true"
+        }
+    },
+    "build-with-jenkins": {
+        "template": {
+            "type": "maven"
+        }
+    }
+}

@@ -1,0 +1,31 @@
+table.tbl {
+	border: 1px solid black;
+	border-spacing: 0px;
+	border-collapse: separate;
+}
+
+table.tbl td {
+	border: 1px solid black;
+	border-spacing: 0px;
+	border-collapse: separate;
+}
+
+.require {
+  color: red;
+}
+
+.success {
+  color: green;
+}
+
+.displayPoint {
+	color: blue;
+}
+
+.highlight {
+  color: blue;
+}
+
+.highlightScore {
+  color: blue;
+}
