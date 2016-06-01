@@ -368,6 +368,7 @@
     </dependencies>
     
     <build>
+    	<finalName>placesshots</finalName>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
