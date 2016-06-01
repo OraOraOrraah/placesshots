@@ -15,11 +15,11 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>{APP_NAME}</groupId>
-    <artifactId>{APP_NAME}</artifactId>
+    <groupId>placesshots</groupId>
+    <artifactId>placesshots</artifactId>
     <packaging>war</packaging>
-    <version>1.0</version>
-    <name>{APP_NAME}</name>
+    <version>1.1-SNAPSHOT</version>
+    <name>placesshots</name>
     <repositories>
 		<repository>
 			<id>eap</id>
@@ -390,7 +390,7 @@
 		</dependency>        
     </dependencies>
     
-<!--     <build> -->
+    <build>
 <!--         <extensions> -->
 <!--             <extension> -->
 <!--                 <groupId>org.apache.maven.wagon</groupId> -->
@@ -398,27 +398,27 @@
 <!--                 <version>1.0-beta-2</version> -->
 <!--             </extension> -->
 <!--         </extensions> -->
-<!--         <plugins> -->
-<!-- 	        <plugin> -->
-<!-- 	            <groupId>org.apache.maven.plugins</groupId> -->
-<!-- 	            <artifactId>maven-compiler-plugin</artifactId> -->
-<!-- 	            <version>3.1</version> -->
-<!-- 	            <configuration> -->
-<!-- 	                <source>1.7</source> -->
-<!-- 	                <target>1.7</target> -->
-<!-- 	            </configuration> -->
-<!-- 	        </plugin> -->
-<!-- 	        <plugin> -->
-<!-- 				<groupId>org.apache.tomcat.maven</groupId> -->
-<!-- 				<artifactId>tomcat7-maven-plugin</artifactId> -->
-<!-- 				<version>2.1</version> -->
-<!-- 				<configuration> -->
+        <plugins>
+	        <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <version>3.1</version>
+	            <configuration>
+	                <source>1.7</source>
+	                <target>1.7</target>
+	            </configuration>
+	        </plugin>
+	        <plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
 <!-- 					<port>9090</port> -->
-<!-- 					<path>/placesshots</path> -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
-<!--     	</plugins> -->
-<!--     </build> -->
+					<path>/placesshots</path>
+				</configuration>
+			</plugin>
+    	</plugins>
+    </build>
 
 <profiles>
 		<profile>
@@ -431,7 +431,7 @@
 			<!-- http://maven.apache.org/guides/mini/guide-building-for-different-environments.html -->
 			<id>openshift</id>
 			<build>
-				<finalName>{APP_NAME}</finalName>
+				<finalName>placesshots</finalName>
 				<plugins>
 					<plugin>
 						<artifactId>maven-war-plugin</artifactId>
