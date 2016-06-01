@@ -1,0 +1,1 @@
+<% response.sendRedirect(session.getServletContext().getContextPath() + "/predict/index"); %>
