@@ -16,8 +16,7 @@ public class UserPointDto implements Serializable {
 	private Integer incorrectResult;
 	private Integer extraPoint;
 	private Integer totalPoint;
-	private String extraPointFlag;
-	
+
 	public String getRank() {
 		return rank;
 	}
@@ -77,12 +76,6 @@ public class UserPointDto implements Serializable {
 	}
 	public void setTotalPoint(Integer totalPoint) {
 		this.totalPoint = totalPoint;
-	}
-	public String getExtraPointFlag() {
-		return extraPointFlag;
-	}
-	public void setExtraPointFlag(String extraPointFlag) {
-		this.extraPointFlag = extraPointFlag;
 	}
 		
 }

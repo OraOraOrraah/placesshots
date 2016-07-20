@@ -30,7 +30,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 		UserDetails userDetails = null;
 
 		try {
-			User user = userDao.findOne(username);
+			User user = userDao.findByUsername(username);
+			
+			if (!username.equals(user.getUsername())) {
+				LOGGER.info(" user in table: " + user.getUsername());
+				throw new UsernameNotFoundException("Error in retrieving user");
+			}
 
 			List<GrantedAuthority> listOfAuthorities = new ArrayList<GrantedAuthority>();
 	        //for (String role : roles) {

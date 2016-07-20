@@ -7,7 +7,6 @@
 <head>
 </head>
 <body>
-	<br/><br/>
 	<div align="center">
 	<table cellspacing="0" cellpadding="0"  border="0" style="width:600px;">
 		<tr>
@@ -24,17 +23,17 @@
 		</tr>
 		<c:forEach var="predictChampionDisplayDto" items="${listPredictChampionDisplayDto}" varStatus="idx">
 			<tr>
-				<td style="width:200px;height:70px;" valign="top">
+				<td style="width:200px;height:30px;" valign="top">
 					<c:out value="${predictChampionDisplayDto.user}" />
 				</td>
-				<td style="width:200px;height:70px;text-align:center;" valign="top">
+				<td style="width:200px;height:30px;text-align:center;" valign="top">
 					&nbsp;
 					<c:if test="${not empty predictChampionDisplayDto.teamShortTitle}">
 						<c:out value="${predictChampionDisplayDto.teamTitle}" />
 						<img src="${pageContext.request.contextPath}/img/flag/${fn:toLowerCase(predictChampionDisplayDto.teamShortTitle)}.png" width="32" height="16" />
 					</c:if>
 				</td>
-				<td style="width:100px;height:70px;text-align:center;" valign="top">
+				<td style="width:100px;height:30px;text-align:center;" valign="top">
 					<c:choose>
 						<c:when test="${predictChampionDisplayDto.round == '8'}">
 							8 ทีม
@@ -50,7 +49,7 @@
 						</c:otherwise>
 					</c:choose>
 				</td>
-				<td style="width:100px;height:70px;text-align:center;" valign="top">
+				<td style="width:100px;height:30px;text-align:center;" valign="top">
 					&nbsp;
 					<c:out value="${predictChampionDisplayDto.point}" />
 				</td>

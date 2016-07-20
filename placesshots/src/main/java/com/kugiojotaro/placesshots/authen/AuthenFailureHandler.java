@@ -21,7 +21,7 @@ public class AuthenFailureHandler extends SimpleUrlAuthenticationFailureHandler 
 	
 	public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse resp, AuthenticationException auth) throws IOException, ServletException {
 		String username = (String)req.getParameter("j_username");
-		LOGGER.info(" username: " + username);
+		LOGGER.info(" onAuthenticationFailure (username: " + username + ")");
 
 		super.onAuthenticationFailure(req, resp, auth);
 	}

@@ -32,7 +32,7 @@ public class FixtureServiceImpl implements FixtureService {
 	
 	@Override
 	public Boolean create(FixtureDto fixtureDto) {
-		LOGGER.info(" create");
+		LOGGER.debug(" create");
 		
 		try {
 			Fixture fixture = fixtureMapper.toPersistenceBean(fixtureDto);
@@ -53,7 +53,7 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public Boolean update(FixtureDto fixtureDto) {
-		LOGGER.info(" update");
+		LOGGER.debug(" update");
 		
 		try {
 			Fixture fixture = fixtureDao.findOne(Helper.string2Long(fixtureDto.getId()));
@@ -74,7 +74,7 @@ public class FixtureServiceImpl implements FixtureService {
 	
 	@Override
 	public Boolean updateScore(FixtureDto fixtureDto) {
-		LOGGER.info(" updateScore");
+		LOGGER.debug(" updateScore");
 		
 		try {
 			Fixture fixture = fixtureDao.findOne(Helper.string2Long(fixtureDto.getId()));
@@ -98,14 +98,14 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public Boolean delete(Short id) {
-		LOGGER.info(" delete");
+		LOGGER.debug(" delete");
 		
 		return true;
 	}
 
 	@Override
 	public FixtureDto selectById(Long id) {
-		LOGGER.info(" selectById");
+		LOGGER.debug(" selectById");
 		
 		FixtureDto result = new FixtureDto();
 		
@@ -121,7 +121,7 @@ public class FixtureServiceImpl implements FixtureService {
 	
 	@Override
 	public List<FixtureDto> findByLeagueAndWeek(Short leagueId, Short week) {
-		LOGGER.info(" findByLeagueAndWeek");
+		LOGGER.debug(" findByLeagueAndWeek");
 		
 		List<FixtureDto> result = new ArrayList<FixtureDto>();
 		
@@ -131,6 +131,7 @@ public class FixtureServiceImpl implements FixtureService {
 			
 			for (Fixture fixture : listFixture) {
 				FixtureDto fixtureDto = fixtureMapper.toDtoBean(fixture);
+				fixtureDto.setFixtureDate(Helper.formatFixtureDate(fixture.getFixtureDate()));
 				fixtureDto.setHomeId(fixture.getHome().getId() + "");
 				fixtureDto.setHomeTitle(fixture.getHome().getTitle() + "");
 				fixtureDto.setHomeShortTitle(fixture.getHome().getShortTitle() + "");
@@ -150,7 +151,7 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public List<FixtureDto> findByLeague(Short leagueId) {
-		LOGGER.info(" findByLeagueAndWeek");
+		LOGGER.debug(" findByLeagueAndWeek");
 		
 		List<FixtureDto> result = new ArrayList<FixtureDto>();
 		
@@ -179,7 +180,7 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public List<FixtureDto> findByRound(Short round) {
-		LOGGER.info(" findByRound: " + round);
+		LOGGER.debug(" findByRound: " + round);
 		
 		List<FixtureDto> result = new ArrayList<FixtureDto>();
 		

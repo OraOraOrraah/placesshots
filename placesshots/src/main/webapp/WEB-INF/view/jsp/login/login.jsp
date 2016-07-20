@@ -12,19 +12,27 @@
 	<h1>Login</h1>
 	<div id="login-error">${error}</div>
 	<form method="post" action="<c:url value='/j_spring_security_check' />">
-		<p>
-			<label for="j_username">Username</label> <input id="j_username" name="j_username" type="text" />
-		</p>
-		<p>
-			<label for="j_password">Password</label> <input id="j_password" name="j_password" type="password" />
-		</p>
-		<input type="checkbox" name="_spring_security_remember_me" /> Keep me signed in
-		<input type="submit" value="Login" />
-		<br/><br/>
-		<a href="<c:url value="/register" />">Register</a>
-		<!--
-		<a href="<c:url value="/forgotpassword" />">Forgot Password</a>
-		-->
+		<table cellpadding="2" cellspacing="2">
+			<tr>
+				<td align="right"><label for="j_username">username</label></td>
+				<td><input id="j_username" name="j_username" type="text" /></td>
+			</tr>
+			<tr>
+				<td align="right"><label for="j_password">password</label></td>
+				<td><input id="j_password" name="j_password" type="password" /></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>
+					<input type="submit" value="Login" style="cursor:pointer;" />
+					&nbsp;&nbsp;&nbsp;
+					<a href="<c:url value="/forgotpassword" />">ลืมรหัสผ่าน</a>
+				</td>
+			</tr>
+		</table>
+<!-- 		<input type="checkbox" name="_spring_security_remember_me" /> Keep me signed in -->
+		<br/>
+		<a href="<c:url value="/register" />">ลงทะเบียน</a>
 	</form>
 </body>
 </html>

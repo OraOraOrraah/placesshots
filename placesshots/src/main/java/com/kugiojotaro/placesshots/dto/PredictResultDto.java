@@ -12,6 +12,7 @@ public class PredictResultDto implements Serializable {
 	private String userIcon;
 	private List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
 	private Integer point;
+	private String displayPoint;
 	
 	public String getUsername() {
 		return username;
@@ -36,6 +37,12 @@ public class PredictResultDto implements Serializable {
 	}
 	public void setListPredictResultDetailDto(List<PredictResultDetailDto> listPredictResultDetailDto) {
 		this.listPredictResultDetailDto = listPredictResultDetailDto;
+	}
+	public String getDisplayPoint() {
+		return displayPoint;
+	}
+	public void setDisplayPoint(String displayPoint) {
+		this.displayPoint = displayPoint;
 	}
 	
 }

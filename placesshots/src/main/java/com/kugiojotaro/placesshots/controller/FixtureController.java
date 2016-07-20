@@ -115,10 +115,10 @@ public class FixtureController {
 	
 	@RequestMapping(value="/list/{week}", method=RequestMethod.GET)
 	public String list(ModelMap modelMap, HttpServletRequest request, @PathVariable String week) throws Exception {
-		request.setAttribute("listFixtureDto", fixtureService.findByLeagueAndWeek((short) 2, Helper.string2Short(week)));
+		request.setAttribute("listFixtureDto", fixtureService.findByLeagueAndWeek((short) PlaceShotsConstant.EURO_2016, Helper.string2Short(week)));
 		
 		dropdownItem = new LinkedHashMap<String,String>();
-		for (short i = 1; i<= (short) 25; i++) {
+		for (short i = 1; i<= (short) 23; i++) {
 			dropdownItem.put((i + ""), (i + ""));
 		}
 		modelMap.put("listWeek", dropdownItem);

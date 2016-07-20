@@ -1,0 +1,8 @@
+- Jenkins
+User: admin
+Password: cYnaakbFEdMB
+
+- Git
+git add -A
+git commit -a -m 'message'
+git push

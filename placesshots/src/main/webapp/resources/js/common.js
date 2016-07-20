@@ -68,7 +68,7 @@ jQuery.extend({
                 $('#confirmdialog').dialog({
                     modal: true,
                     resizable: false,
-                    minWidth: 350,
+                    minWidth: 450,
                     minHeight: 150,
                     buttons: [
                     {
@@ -334,10 +334,15 @@ jQuery.fn.extend({
 function ajaxPost(url, data, callback, unblock) {
 	$.ajax({url: url, data: data, cache: false, type: "POST",
 		beforeSend: function() {
-			//
-			if (!unblock) {
-				$.blockUI({ message: "Loading..." });
-			}
+			$.blockUI({ message: 'Processing...',css: {
+	            border: 'none', 
+	            padding: '15px', 
+	            backgroundColor: '#000', 
+	            '-webkit-border-radius': '10px', 
+	            '-moz-border-radius': '10px', 
+	            opacity: .5, 
+	            color: '#fff' 
+	        }});
 		}})
 		.done(callback)
 		.fail(function(jqXHR, textStatus, errorThrown) {
@@ -347,20 +352,22 @@ function ajaxPost(url, data, callback, unblock) {
 			alert(errorThrown);
 		})
 		.always(function() {
-			//
-			if (!unblock) {
-				$.unblockUI();
-			}
+			$.unblockUI();
 		});
 }
 
 function ajaxGet(url, data, callback, unblock) {
 	$.ajax({url: url, data: data, cache: false, type: "GET",
 		beforeSend: function() {
-			//
-			if (!unblock) {
-				$.blockUI({ message: "Loading..." });
-			}
+			$.blockUI({ message: 'Processing...',css: {
+	            border: 'none', 
+	            padding: '15px', 
+	            backgroundColor: '#000', 
+	            '-webkit-border-radius': '10px', 
+	            '-moz-border-radius': '10px', 
+	            opacity: .5, 
+	            color: '#fff' 
+	        }});
 		}})
 		.done(callback)
 		.fail(function(jqXHR, textStatus, errorThrown) {
@@ -370,10 +377,7 @@ function ajaxGet(url, data, callback, unblock) {
 			alert(errorThrown);
 		})
 		.always(function() {
-			//
-			if (!unblock) {
-				$.unblockUI();
-			}
+			$.unblockUI();
 		});
 }
 

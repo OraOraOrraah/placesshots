@@ -13,31 +13,23 @@
 		$("#homeScore" + index).val(homeScore);
 		$("#awayScore" + index).val(awayScore);
 	}
-	
-	/*
-	function setPredictedRedCardFlag(index, redCardFlag) {
-		if (redCardFlag == "1") {
-			$("#redCardFlagCheckBox" + index).attr("checked", checked);
-			$("#redCardFlag" + index).val(redCardFlag);
-		}
-	}
-	
-	function setRedCardFlag(index, redCardFlag) {
-		$("#redCardFlag" + index).attr("checked", checked);
-	}
-	*/
 </script>
 </head>
 <body>
 	<br/><br/>
+	<div style="margin-left: 20px;">
 	Date 
 	<select id="week">
 		<c:forEach var="data" items="${listWeek}">
 			<option value="${data.key}">${data.value}</option>
 		</c:forEach>
 	</select>
-<!-- 	<br/><br/> -->
-<!-- 	<span class="require">* นับคะแนนเฉพาะผลการแข่งขันใน 90 นาที</span> -->
+	<div id="90" style="display:none;">
+		<br/>
+		<span class="require">* คิดคะแนนจากผลการแข่งขัน 90 นาที</span>
+		<br/>
+		<span class="require">* ขยายเวลาปิดรับทายผลเป็น 22:00 น.</span>
+	</div>
 	<br/><br/>
 	<form id="formMain" name="formMain">
 		<table border="0">
@@ -52,7 +44,7 @@
 					<td valign="bottom">
 						<img src="${pageContext.request.contextPath}/img/flag/${fn:toLowerCase(predictDisplayDto.homeShortTitle)}.png" width="32" height="16" />
 					</td>
-					<td>
+					<td align="center">
 						<select id="homeScore<c:out value="${idx.index}" />" name="homeScore">
 							<option value="">&nbsp;</option>
 							<option value="0">0</option>
@@ -67,8 +59,8 @@
 							<option value="9">9</option>
 						</select>
 					</td>
-					<td>-</td>
-					<td align="left">
+					<td align="center">-</td>
+					<td align="center">
 						<select id="awayScore<c:out value="${idx.index}" />" name="awayScore">
 							<option value="">&nbsp;</option>
 							<option value="0">0</option>
@@ -100,13 +92,21 @@
 					//setPredictedRedCardFlag(<c:out value="${idx.index}" />, <c:out value="${predictDisplayDto.redCardFlag}" />);
 				</script>
 			</c:forEach>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td colspan="3" align="center">
+					<c:if test="${live == 1}">
+						<br/>
+						<input type="button" id="buttonSave" value='Save' style="width: 100px; font-family: Tahoma; font-size: 13px; font-style: normal; cursor: pointer;" />
+					</c:if>
+				</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
 		</table>
 	</form>
-	<br/>
-	
-	<c:if test="${live == 1}">
-		<input type="button" id="buttonSave" value='Save' style="width: 100px; font-family: Tahoma; font-size: 13px; font-style: normal; cursor: pointer;" />
-	</c:if>
+	</div>
 	
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -125,16 +125,9 @@
 			});
 		});
 		
-		/*
-		$(".checkboxRedCardFlag").click(function(){
-			if ($(this).attr("checked") == "checked") {
-				$("#redCardFlag" + $(this).val()).val("1");
-			}
-			else {
-				$("#redCardFlag" + $(this).val()).val("");
-			}
-		});
-		*/
+		if (("${week}"*1) >= 14) {
+			$("#90").show();
+		}
 	</script>
 </body>
 </html>

@@ -11,21 +11,29 @@
 <body>
 	<br/><br/>
 	<div id="divReg">
-		Register
+		<b>ลงทะเบียน</b>
+		<br/><br/>
 		<form:form name="formUser" id="formUser" method="POST" modelAttribute="userDto" acceptCharset="UTF-8">
 			<input type="hidden" id="mode" name="mode" value="${mode}" />
-			<table>
+			<table cellspacing="2" cellpadding="2">
 				<tr>
-					<td width="120px;">username: </td>
+					<td width="120px;" align="right">username: </td>
 					<td>
 						<form:input path="username" id="username" maxlength="20" cssClass="input-text" />
 						<span class="require">*</span>
 					<td>
 				</tr>
 				<tr>
-					<td>password: </td>
+					<td align="right">password: </td>
 					<td>
 						<form:password path="password" id="password" maxlength="20" cssClass="input-text" />
+						<span class="require">*</span>
+					<td>
+				</tr>
+				<tr>
+					<td align="right">password confirm: </td>
+					<td>
+						<form:password path="passwordConfirm" id="passwordConfirm" maxlength="20" cssClass="input-text" />
 						<span class="require">*</span>
 					<td>
 				</tr>
@@ -49,10 +57,14 @@
 					<td>
 				</tr>
 				-->
+				<tr>
+					<td align="right">&nbsp;</td>
+					<td>
+						<input type="button" id="buttonSave" value='Save' style="width: 100px; font-family: Tahoma; font-size: 13px; font-style: normal; cursor: pointer;" />
+					<td>
+				</tr>
 			</table>
 			<br/>
-			<input type="button" id="buttonSave" value='Save' style="width: 100px; font-family: Tahoma; font-size: 13px; font-style: normal; cursor: pointer;" />
-			
 		</form:form>
 	</div>
 	

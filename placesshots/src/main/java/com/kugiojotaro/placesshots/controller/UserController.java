@@ -27,6 +27,7 @@ import com.kugiojotaro.placesshots.util.Helper;
 import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
 import com.kugiojotaro.placesshots.dto.AjaxJsonResponse;
 import com.kugiojotaro.placesshots.dto.TeamDto;
+import com.kugiojotaro.placesshots.dto.UserChangePasswordDto;
 import com.kugiojotaro.placesshots.dto.UserDto;
 import com.kugiojotaro.placesshots.service.TeamService;
 import com.kugiojotaro.placesshots.service.UserService;
@@ -65,7 +66,6 @@ public class UserController {
 		return "user/register";
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/register/save", method = RequestMethod.POST)
 	public @ResponseBody AjaxJsonResponse registerPost(@Valid @ModelAttribute("userDto") UserDto userDto, BindingResult bindingResult, ModelMap modelMap, HttpServletRequest request) {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
@@ -79,6 +79,14 @@ public class UserController {
 	                errorsMap.put(fieldError.getField(), messageSource.getMessage("validation." + fieldError.getCode().toString() + "." + fieldError.getField(), new Object[]{fieldError.getRejectedValue()}, Locale.ENGLISH));
 	            }
 				
+				ajaxJsonResponse.setErrorsMap(errorsMap);
+				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				
+				return ajaxJsonResponse;
+			}
+			
+			if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
+				errorsMap.put("passwordConfirm", "password confirm not match!");
 				ajaxJsonResponse.setErrorsMap(errorsMap);
 				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
 				
@@ -105,18 +113,45 @@ public class UserController {
 	
 	@RequestMapping(value = "/changepassword", method = RequestMethod.GET)
 	public String changePassword(ModelMap modelMap, HttpServletRequest request) {
+		request.setAttribute("userChangePasswordDto", new UserChangePasswordDto());
 		return "user/changepassword";
 	}
 	
 	@RequestMapping(value = "/changepassword/save", method = RequestMethod.POST)
-	public @ResponseBody AjaxJsonResponse changePasswordSave(HttpServletRequest request) {
+	public @ResponseBody AjaxJsonResponse changePasswordSave(@Valid @ModelAttribute("userChangePasswordDto") UserChangePasswordDto userChangePasswordDto, BindingResult bindingResult, ModelMap modelMap, HttpServletRequest request) {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 
 		try {
-			UserDto userDto = new UserDto();
-			userDto.setUsername((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
-			userDto.setPassword(request.getParameter("password"));
-			userService.changepassword(userDto);
+			Map<String ,String> errorsMap = new LinkedHashMap<String, String>();
+			
+			if (bindingResult.hasErrors()) {
+				List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+				for (FieldError fieldError : fieldErrors) {
+	                errorsMap.put(fieldError.getField(), messageSource.getMessage("validation." + fieldError.getCode().toString() + "." + fieldError.getField(), new Object[]{fieldError.getRejectedValue()}, Locale.ENGLISH));
+	            }
+				
+				ajaxJsonResponse.setErrorsMap(errorsMap);
+				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				
+				return ajaxJsonResponse;
+			}
+
+			if (!userChangePasswordDto.getPassword().equals(userChangePasswordDto.getPasswordConfirm())) {
+				errorsMap.put("passwordConfirm", "password confirm not match!");
+				ajaxJsonResponse.setErrorsMap(errorsMap);
+				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				
+				return ajaxJsonResponse;
+			}
+			
+			userChangePasswordDto.setUsername((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			Boolean result = userService.changepassword(userChangePasswordDto);
+			if (result) {
+				ajaxJsonResponse.setResult(Constant.RESULT_SUCCESS);
+			}
+			else {
+				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			}
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
@@ -127,24 +162,45 @@ public class UserController {
 		return ajaxJsonResponse;
 	}
 	
-	@RequestMapping(value = "/adm/forgotpassword", method = RequestMethod.GET)
+	@RequestMapping(value = "/forgotpassword", method = RequestMethod.GET)
 	public String forgotPassword(ModelMap modelMap, HttpServletRequest request) {
 		return "user/forgotpassword";
 	}
 	
+	@RequestMapping(value = "/adm/forgotpassword", method = RequestMethod.GET)
+	public String forgotPasswordAdm(ModelMap modelMap, HttpServletRequest request) {
+		request.setAttribute("userDto", new UserDto());
+		return "user/forgotpasswordAdm";
+	}
+	
 	@RequestMapping(value = "/adm/forgotpassword/save", method = RequestMethod.POST)
-	public @ResponseBody AjaxJsonResponse forgotPasswordSave(HttpServletRequest request) {
+	public @ResponseBody AjaxJsonResponse forgotPasswordAdmSave(@Valid @ModelAttribute("userDto") UserDto userDto, BindingResult bindingResult, ModelMap modelMap, HttpServletRequest request) {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
-
+		
 		try {
-			String password = RandomStringUtils.randomAlphanumeric(8);
+			Map<String ,String> errorsMap = new LinkedHashMap<String, String>();
 			
-			UserDto userDto = new UserDto();
-			userDto.setUsername(request.getParameter("username"));
-			userDto.setPassword(password);
-			userService.changepassword(userDto);
+			if (bindingResult.hasErrors()) {
+				List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+				for (FieldError fieldError : fieldErrors) {
+	                errorsMap.put(fieldError.getField(), messageSource.getMessage("validation." + fieldError.getCode().toString() + "." + fieldError.getField(), new Object[]{fieldError.getRejectedValue()}, Locale.ENGLISH));
+	            }
+				
+				ajaxJsonResponse.setErrorsMap(errorsMap);
+				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				
+				return ajaxJsonResponse;
+			}
 			
-			ajaxJsonResponse.setReturnValue(password);
+			if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
+				errorsMap.put("passwordConfirm", "password confirm not match!");
+				ajaxJsonResponse.setErrorsMap(errorsMap);
+				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				
+				return ajaxJsonResponse;
+			}
+			
+			userService.update(userDto);
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex.getMessage());
@@ -162,10 +218,32 @@ public class UserController {
 		try {
 			UserDto userDto = userService.findByUsername(request.getParameter("username"));
 			if (userDto != null) {
-				LOGGER.info(" " + userDto.getUsername());
+				LOGGER.debug(" " + userDto.getUsername());
 			}
 			
 			if (userDto != null && !userDto.getUsername().equals("") && userDto.getUsername().equals(request.getParameter("username"))) {
+				ajaxJsonResponse.setReturnValue("Y");
+			}
+			else {
+				ajaxJsonResponse.setReturnValue("N");
+			}
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex.getMessage());
+		
+			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+		}
+		
+		return ajaxJsonResponse;
+	}
+	
+	@RequestMapping(value = "/checkUserPassword", method = RequestMethod.POST)
+	public @ResponseBody AjaxJsonResponse checkUserPassword(HttpServletRequest request) {
+		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
+
+		try {
+			UserDto userDto = userService.findByUsernameAndPassword((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER), request.getParameter("oldPassword"));
+			if (userDto != null) {
 				ajaxJsonResponse.setReturnValue("Y");
 			}
 			else {
@@ -259,7 +337,6 @@ public class UserController {
 
 		try {
 			result = (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER);
-			LOGGER.info(" result: " + result);
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex.getMessage());

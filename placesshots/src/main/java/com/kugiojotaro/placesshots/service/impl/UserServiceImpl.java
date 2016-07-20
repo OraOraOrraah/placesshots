@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.kugiojotaro.placesshots.dao.UserDao;
 import com.kugiojotaro.placesshots.dao.UserItemDao;
+import com.kugiojotaro.placesshots.dto.UserChangePasswordDto;
 import com.kugiojotaro.placesshots.dto.UserDto;
 import com.kugiojotaro.placesshots.dto.UserItemDto;
 import com.kugiojotaro.placesshots.entity.User;
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public Boolean create(UserDto userDto) {
-		LOGGER.info(" create user: " + userDto.getUsername());
+		LOGGER.debug(" create user: " + userDto.getUsername());
 		
 		try {
 			User user = userMapper.toPersistenceBean(userDto);
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
 			user.setCreateDate(new Date());
 			userDao.save(user);
 			
+			LOGGER.info(" registered user: " + userDto.getUsername());
 			/*
 			Item item2 = new Item();
 			item2.setId((short) 1);
@@ -77,10 +79,11 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Boolean update(UserDto userDto) {
-		LOGGER.info(" update");
+		LOGGER.debug(" update");
 		
 		try {
 			User user = userDao.findOne(userDto.getUsername());
+			user.setPassword(md5PasswordEncoder.encodePassword(userDto.getPassword(), null));
 			user = userMapper.toPersistenceBean(userDto);
 			user.setUpdateDate(new Date());
 			userDao.save(user);
@@ -95,7 +98,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public Boolean updateProfile(UserDto userDto) {
-		LOGGER.info(" update");
+		LOGGER.debug(" update");
 		
 		try {
 			User user = userDao.findOne(userDto.getUsername());
@@ -113,14 +116,14 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public Boolean delete(String username) {
-		LOGGER.info(" delete");
+		LOGGER.debug(" delete");
 		
 		return true;
 	}
 
 	@Override
 	public UserDto findByUsername(String username) {
-		LOGGER.info(" findByUsername (username: " + username + ")");
+		LOGGER.debug(" findByUsername (username: " + username + ")");
 		
 		UserDto userDto = null;
 		
@@ -129,8 +132,28 @@ public class UserServiceImpl implements UserService {
 			if (user != null) {
 				userDto = userMapper.toDtoBean(user);
 			}
-			
-			LOGGER.info(" success");
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex, ex);
+		}
+		
+		return userDto;
+	}
+	
+	@Override
+	public UserDto findByUsernameAndPassword(String username, String password) {
+		LOGGER.debug(" findByUsernameAndPassword, username: " + username);
+		
+		UserDto userDto = null;
+		
+		try {
+			User user = userDao.findOne(username);
+			if (user != null) {
+				String md5Password = md5PasswordEncoder.encodePassword(password, null);
+				if (user.getPassword().equals(md5Password)) {
+					userDto = userMapper.toDtoBean(user);
+				}
+			}
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex, ex);
@@ -146,7 +169,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserItemDto> selectUserItem(String username) {
-		LOGGER.info(" selectUserItem (username: " + username + ")");
+		LOGGER.debug(" selectUserItem (username: " + username + ")");
 		
 		List<UserItemDto> result = new ArrayList<UserItemDto>();
 		
@@ -171,20 +194,19 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Boolean changepassword(UserDto userDto) {
-		LOGGER.info(" changepassword (username: " + userDto.getUsername() + ")");
-		
+	public Boolean changepassword(UserChangePasswordDto userChangePasswordDto) {
+		LOGGER.info(" changepassword (username: " + userChangePasswordDto.getUsername() + ")");
 		try {
-			User user = userDao.findOne(userDto.getUsername());
-			user.setPassword(md5PasswordEncoder.encodePassword(userDto.getPassword(), null));
+			User user = userDao.findOne(userChangePasswordDto.getUsername());
+			user.setPassword(md5PasswordEncoder.encodePassword(userChangePasswordDto.getPassword(), null));
 			userDao.save(user);
+			LOGGER.info(" changepassword success");
+			return true;
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex, ex);
 			return false;
 		}
-		
-		return true;
 	}
 	
 }

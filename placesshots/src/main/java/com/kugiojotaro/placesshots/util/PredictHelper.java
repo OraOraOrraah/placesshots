@@ -38,7 +38,7 @@ public class PredictHelper {
 				point = 1;
 					
 				if (fixture.getHomeScore() == predict.getHomeScore() && fixture.getAwayScore() == predict.getAwayScore()) {
-					point = 4;
+					point = 3;
 				}
 			}
 		}

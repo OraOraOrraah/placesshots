@@ -32,6 +32,20 @@ public class Helper {
 		}
 	};
 	
+	private static final ThreadLocal<DateFormat> SDF_TIME = new ThreadLocal<DateFormat>() {
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("HH:mm:ss", Locale.US);
+		}
+	};
+	
+	private static final ThreadLocal<DateFormat> SDF_FIXTURE_DATE = new ThreadLocal<DateFormat>() {
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("EEEE dd/MM/yyyy", Locale.US);
+		}
+	};
+	
 	private static final ThreadLocal<DecimalFormat> DF_RENDER_DECIMAL = new ThreadLocal<DecimalFormat>() {
 		@Override
 		protected DecimalFormat initialValue() {
@@ -75,6 +89,21 @@ public class Helper {
 		try {
 			if (value != null) {
 				result = SDF_DATE.get().format(value);
+			}
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex, ex);
+		}
+		
+		return result;
+	}
+	
+	public static String date2TimeString(Date value) {
+		String result = "";
+
+		try {
+			if (value != null) {
+				result = SDF_TIME.get().format(value);
 			}
 		}
 		catch (Exception ex) {
@@ -168,5 +197,20 @@ public class Helper {
 	public static boolean isLiveTime(Date d) {
         return new DateTime(d).getMinuteOfDay() < (PlaceShotsConstant.END_LIVE_HOUR * 60);
     }
+	
+	public static String formatFixtureDate(Date param) {
+		String result = "";
+
+		try {
+			if (param != null) {
+				result = SDF_FIXTURE_DATE.get().format(param);
+			}
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex, ex);
+		}
+		
+		return result;
+	}
 
 }

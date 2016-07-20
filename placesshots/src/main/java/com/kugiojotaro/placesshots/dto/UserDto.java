@@ -16,12 +16,15 @@ public class UserDto implements Serializable {
 	private static final long serialVersionUID = 4709463601376556555L;
 	
 	@NotBlank
-	@Size(min = 8, max = 20)
+	@Size(min = 4, max = 20)
 	private String username;
 	
 	@NotBlank
-	@Size(min = 8, max = 20)
+	@Size(min = 4, max = 20)
 	private String password;
+	
+	@NotBlank
+	private String passwordConfirm;
 	
 	@Email
 	private String email;
@@ -47,6 +50,12 @@ public class UserDto implements Serializable {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getPasswordConfirm() {
+		return passwordConfirm;
+	}
+	public void setPasswordConfirm(String passwordConfirm) {
+		this.passwordConfirm = passwordConfirm;
 	}
 	public String getEmail() {
 		return email;

@@ -37,6 +37,10 @@
 		<put-attribute name="content" value="/WEB-INF/view/jsp/user/forgotpassword.jsp"  />
 	</definition>
 	
+	<definition name="user/forgotpasswordAdm" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/user/forgotpassword_adm.jsp"  />
+	</definition>
+	
 	<definition name="team/form" extends="layoutMain">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/team/team_form.jsp"  />
 	</definition>
@@ -65,12 +69,16 @@
 		<put-attribute name="content" value="/WEB-INF/view/jsp/predict/result.jsp"  />
 	</definition>
 	
+	<definition name="predict/resultLastest" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/predict/result_lastest.jsp"  />
+	</definition>
+	
 	<definition name="predict/standing" extends="layoutMain">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/predict/standing.jsp"  />
 	</definition>
 
-	<definition name="predict/myresult" extends="layoutMain">
-		<put-attribute name="content" value="/WEB-INF/view/jsp/predict/myresult.jsp"  />
+	<definition name="predict/performance" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/predict/performance.jsp"  />
 	</definition>
 	
 	<definition name="predict/extra" extends="layoutMain">

@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:url var="changepasswordSave" value="/changepassword/save" />
+<c:url var="forgotpasswordSave" value="/adm/forgotpassword/save" />
 
 <!DOCTYPE HTML>
 <html>
@@ -11,15 +11,15 @@
 <body>
 	<br/><br/>
 	<div id="divReg">
-		<b>เปลี่ยนรหัสผ่าน</b>
+		<b>ลืมรหัสผ่าน</b>
 		<br/><br/>
-		<form:form name="formUser" id="formUser" method="POST" modelAttribute="userChangePasswordDto" acceptCharset="UTF-8">
+		<form:form name="formUser" id="formUser" method="POST" modelAttribute="userDto" acceptCharset="UTF-8">
 			<input type="hidden" id="mode" name="mode" value="${mode}" />
 			<table cellspacing="2" cellpadding="2">
 				<tr>
-					<td align="right">old password: </td>
+					<td width="120px;" align="right">username: </td>
 					<td>
-						<form:password path="oldPassword" id="oldPassword" maxlength="20" cssClass="input-text" />
+						<form:input path="username" id="username" maxlength="20" cssClass="input-text" />
 						<span class="require">*</span>
 					<td>
 				</tr>
@@ -48,21 +48,39 @@
 		</form:form>
 	</div>
 	
+	<div id="divRegSuccess" style="display:none;">
+		<a href="<c:url value="/login" />">Login</a>
+	</div>
+	
 	<script type="text/javascript">
+		$("#username").on("keypress", function(event) {
+		    var englishAlphabetAndWhiteSpace = /[A-Za-z0-9]/g;
+		    var key = String.fromCharCode(event.which);
+		    if (event.keyCode == 8 || event.keyCode == 37 || event.keyCode == 39 || englishAlphabetAndWhiteSpace.test(key)) {
+		        return true;
+		    }
+		    return false;
+		});
+	
+		$('#username').on("paste",function(e) {
+		    e.preventDefault();
+		});
+	
 		$("#buttonSave").click(function(){
 			
 			$(".fieldError").hide();
 			
-			ajaxPost('<c:url value="/checkUserPassword" />', $('#formUser').serialize(), function(response) {
+			ajaxPost('<c:url value="/checkUser" />', $('#formUser').serialize(), function(response) {
 				if (response.result == "success") {
 					if (response.returnValue == "N") {
-						alert("old password not correct!");
+						alert("Username Not Exists!");
 					}
 					else {
-						ajaxPost('${changepasswordSave}', $('#formUser').serialize(), function(response) {
+						ajaxPost('${forgotpasswordSave}', $('#formUser').serialize(), function(response) {
 							if (response.result == "success") {
 								$("#successMsgDiv").show();
 								$("#divReg").hide();
+								$("#divRegSuccess").show();
 							}
 							else {
 								for (var key in response.errorsMap) {

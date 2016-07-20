@@ -1,3 +1,10 @@
+body {
+/* 	background-color: #adc9e0; */
+/* 	color: #375576; */
+}
+a {
+	color: #2d96ff;
+}
 table.tbl {
 	border: 1px solid black;
 	border-spacing: 0px;

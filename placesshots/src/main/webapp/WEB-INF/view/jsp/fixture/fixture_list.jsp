@@ -5,6 +5,7 @@
 <c:url var="fixtureList" value="/adm/fixture/list" />
 <c:url var="fixtureSave" value="/adm/fixture/save" />
 <c:url var="fixtureUpdateScore" value="/adm/fixture/update_score" />
+<c:url var="predictGettime" value="/predict/gettime" />
 
 <!DOCTYPE HTML>
 <html>
@@ -17,6 +18,7 @@
 </script>
 </head>
 <body>
+<div id="showTime"></div>
 	<br/><br/>
 	week 
 	<select id="week">
@@ -143,6 +145,17 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#week").val("${week}");
+			
+			setInterval(function() {
+				$.ajax({
+					  url: '${predictGettime}',
+					  cache: false,
+					  type: "POST",
+					  success: function(response){
+						  $("#showTime").html(response.result);
+					  }
+					});
+			}, 1000);
 		});
 		
 		$("#week").live('change', function(){

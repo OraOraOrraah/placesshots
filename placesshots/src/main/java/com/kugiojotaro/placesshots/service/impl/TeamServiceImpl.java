@@ -31,7 +31,7 @@ public class TeamServiceImpl implements TeamService {
 	
 	@Override
 	public Boolean create(TeamDto teamDto) {
-		LOGGER.info(" create");
+		LOGGER.debug(" create");
 		
 		try {
 			Team team = teamMapper.toPersistenceBean(teamDto);
@@ -47,7 +47,7 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public Boolean update(TeamDto teamDto) {
-		LOGGER.info(" update");
+		LOGGER.debug(" update");
 		
 		try {
 			Team team = teamDao.findOne(Helper.string2Integer(teamDto.getId()));
@@ -64,7 +64,7 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public TeamDto selectById(Integer id) {
-		LOGGER.info(" selectById");
+		LOGGER.debug(" selectById");
 		
 		TeamDto result = null;
 		
@@ -80,14 +80,14 @@ public class TeamServiceImpl implements TeamService {
 	
 	@Override
 	public Boolean delete(Integer id) {
-		LOGGER.info(" delete");
+		LOGGER.debug(" delete");
 		
 		return true;
 	}
 
 	@Override
 	public List<TeamDto> findByLeague(Short leagueId) {
-		LOGGER.info(" findByLeague");
+		LOGGER.debug(" findByLeague");
 		
 		List<TeamDto> result = new ArrayList<TeamDto>();
 		

@@ -10,6 +10,7 @@ import com.kugiojotaro.placesshots.dto.PredictChampionDto;
 import com.kugiojotaro.placesshots.dto.PredictDto;
 import com.kugiojotaro.placesshots.dto.PredictResultDto;
 import com.kugiojotaro.placesshots.dto.UserPointDto;
+import com.kugiojotaro.placesshots.dto.UserPredictPerformanceDto;
 
 public interface PredictService {
 
@@ -17,7 +18,7 @@ public interface PredictService {
 	public Boolean create(PredictDto predictDto);
 	
 	@Transactional
-	public Boolean predict(List<PredictDto> listPredictDto);
+	public Boolean predict(String user, Short week, List<PredictDto> listPredictDto);
 
 	/*
 	@Transactional
@@ -49,5 +50,7 @@ public interface PredictService {
 	public PredictChampionDto findPredictChampionByUser(String username);
 	
 	List<PredictChampionDisplayDto> resultPredictChampion();
+	
+	List<UserPredictPerformanceDto> performance(String username);
 	
 }

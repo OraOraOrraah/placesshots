@@ -28,6 +28,10 @@
     	<security:intercept-url pattern="/index.jsp" access="permitAll" />
     	<security:intercept-url pattern="/login" access="permitAll" />
     	<security:intercept-url pattern="/predict/rule" access="permitAll" />
+    	<security:intercept-url pattern="/predict/result/**" access="permitAll" />
+    	<security:intercept-url pattern="/predict/resultlastest" access="permitAll" />
+    	<security:intercept-url pattern="/predict/history/**" access="permitAll" />
+    	<security:intercept-url pattern="/predict/standing" access="permitAll" />
     	<security:intercept-url pattern="/register/**" access="permitAll" />
     	<security:intercept-url pattern="/checkUser" access="permitAll" />
     	<security:intercept-url pattern="/forgotpassword/**" access="permitAll" />

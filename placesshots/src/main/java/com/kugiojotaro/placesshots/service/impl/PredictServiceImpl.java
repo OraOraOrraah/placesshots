@@ -24,6 +24,7 @@ import com.kugiojotaro.placesshots.dto.PredictDto;
 import com.kugiojotaro.placesshots.dto.PredictResultDetailDto;
 import com.kugiojotaro.placesshots.dto.PredictResultDto;
 import com.kugiojotaro.placesshots.dto.UserPointDto;
+import com.kugiojotaro.placesshots.dto.UserPredictPerformanceDto;
 import com.kugiojotaro.placesshots.entity.Fixture;
 import com.kugiojotaro.placesshots.entity.Predict;
 import com.kugiojotaro.placesshots.entity.PredictChampion;
@@ -63,7 +64,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public Boolean create(PredictDto predictDto) {
-		LOGGER.info(" create");
+		LOGGER.debug(" create");
 		
 		try {
 			Predict predict = predictMapper.toPersistenceBean(predictDto);
@@ -77,23 +78,10 @@ public class PredictServiceImpl implements PredictService {
 	}
 	
 	@Override
-	public Boolean predict(List<PredictDto> listPredictDto) {
-		LOGGER.info(" predict");
+	public Boolean predict(String user, Short week, List<PredictDto> listPredictDto) {
+		LOGGER.debug(" predict");
 		
 		try {
-			//
-			String user = "";
-			Short week = null;
-			for (PredictDto predictDto : listPredictDto) {
-				user = predictDto.getUser();
-				week = Helper.string2Short(predictDto.getWeek());
-				
-				LOGGER.info(" user: " + user);
-				LOGGER.info(" week: " + week);
-				
-				break;
-			}
-			
 			predictDao.delete(predictDao.findByUserAndWeek(user, week));
 			
 			//
@@ -136,7 +124,7 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public List<PredictDto> findByUser(String username) {
-		LOGGER.info(" findByUser");
+		LOGGER.debug(" findByUser");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
@@ -159,7 +147,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictDto> findByWeek(Short week) {
-		LOGGER.info(" findByUsername");
+		LOGGER.debug(" findByUsername");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
@@ -182,7 +170,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictDto> findByUserAndWeek(String username, Short week) {
-		LOGGER.info(" findByUserAndWeek");
+		LOGGER.debug(" findByUserAndWeek");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
@@ -205,7 +193,7 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public List<PredictResultDto> weeklyResult(Short week) {
-		LOGGER.info(" weeklyResult: " + week);
+		LOGGER.debug(" weeklyResult: " + week);
 		
 		List<PredictResultDto> result = new ArrayList<PredictResultDto>();
 		
@@ -249,6 +237,8 @@ public class PredictServiceImpl implements PredictService {
 				List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
 				for (Fixture fixture : listFixture) {
 					PredictResultDetailDto predictResultDetailDto = new PredictResultDetailDto();
+					predictResultDetailDto.setHomeScore(Helper.nullObj2Blank(fixture.getHomeScore()) + "");
+					predictResultDetailDto.setAwayScore(Helper.nullObj2Blank(fixture.getAwayScore()) + "");
 					predictResultDetailDto.setPredictHomeScore("");
 					predictResultDetailDto.setPredictAwayScore("");
 					predictResultDetailDto.setPoint(0);
@@ -260,7 +250,8 @@ public class PredictServiceImpl implements PredictService {
 							predictResultDetailDto.setPredictHomeScore(Helper.null2Blank(predict.getHomeScore() + ""));
 							predictResultDetailDto.setPredictAwayScore(Helper.null2Blank(predict.getAwayScore() + ""));
 							if (fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
-								predictResultDetailDto.setPoint(Helper.string2Integer(PredictHelper.calculatePoint(fixture, predict) + ""));
+								predictResultDto.setDisplayPoint("Y");
+								predictResultDetailDto.setPoint(Helper.string2Integer(PredictHelper.calculatePoint(fixture, predict) + 1 + ""));
 								predictResultDto.setPoint(predictResultDto.getPoint() + predictResultDetailDto.getPoint());
 							}
 							else {
@@ -277,8 +268,6 @@ public class PredictServiceImpl implements PredictService {
 				
 				result.add(predictResultDto);
 			}
-			
-			LOGGER.info(" weeklyResult Success");
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex, ex);
@@ -289,7 +278,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictResultDto> result(String username) {
-		LOGGER.info(" result: " + username);
+		LOGGER.debug(" result: " + username);
 		
 		List<PredictResultDto> result = new ArrayList<PredictResultDto>();
 		
@@ -329,7 +318,7 @@ public class PredictServiceImpl implements PredictService {
 						predictResultDetailDto.setPredictHomeScore(Helper.null2Blank(predict.getHomeScore() + ""));
 						predictResultDetailDto.setPredictAwayScore(Helper.null2Blank(predict.getAwayScore() + ""));
 						if (fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
-							predictResultDetailDto.setPoint(Helper.string2Integer(PredictHelper.calculatePoint(fixture, predict) + ""));
+							predictResultDetailDto.setPoint(Helper.string2Integer(PredictHelper.calculatePoint(fixture, predict) + "") + 1);
 							predictResultDto.setPoint(predictResultDto.getPoint() + predictResultDetailDto.getPoint());
 						}
 						else {
@@ -357,7 +346,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<UserPointDto> standing(Short week) {
-		LOGGER.info(" standing - week: " + week);
+		LOGGER.debug(" standing - week: " + week);
 		
 		List<UserPointDto> result = new ArrayList<UserPointDto>();
 		
@@ -374,15 +363,15 @@ public class PredictServiceImpl implements PredictService {
 				if (Helper.null2Blank(fixture.getRound() + "").equals("2")) {
 					int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
 					int awayScore = Helper.string2Integer(Helper.null2Zero(fixture.getAwayScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayPenaltyScore() + ""));
-					LOGGER.info(" homescore: " + homeScore);
-					LOGGER.info(" awayscore: " + awayScore);
+					LOGGER.debug(" homescore: " + homeScore);
+					LOGGER.debug(" awayscore: " + awayScore);
 					if (homeScore > awayScore) {
 						championId = fixture.getHome().getId();
 					}
 					if (awayScore > homeScore) {
 						championId = fixture.getAway().getId();
 					}
-					LOGGER.info(" championId: " + championId);
+					LOGGER.debug(" championId: " + championId);
 				}
 			}
 			
@@ -404,7 +393,7 @@ public class PredictServiceImpl implements PredictService {
 				Fixture fixture = mapFixture.get(predict.getFixture());
 				//Short point = (short) (mapUserPoint.get(predict.getUser()) + Helper.string2Short(Helper.nullObj2Zero(predict.getPoint())));
 				if (fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
-					mapUserPoint.put(predict.getUser(), mapUserPoint.get(predict.getUser()) + PredictHelper.calculatePoint(fixture, predict));
+					mapUserPoint.put(predict.getUser(), mapUserPoint.get(predict.getUser()) + PredictHelper.calculatePoint(fixture, predict) + 1);
 				}
 			}
 			
@@ -417,14 +406,13 @@ public class PredictServiceImpl implements PredictService {
 				userPointDto.setCorrectResult(0);
 				userPointDto.setCorrectResultAndScore(0);
 				userPointDto.setIncorrectResult(0);
-				userPointDto.setExtraPoint(99);
+				userPointDto.setExtraPoint(-1);
 				
 				if (mapUserPoint.get(user.getUsername()) != null) {
 					userPointDto.setPoint(mapUserPoint.get(user.getUsername()));
 				}
 				
 				for (Predict predict : listPredict) {
-					//if (predict.getWeek() <= week) {
 						if (predict.getUser().equals(user.getUsername())) {
 							
 							//
@@ -437,7 +425,7 @@ public class PredictServiceImpl implements PredictService {
 								//
 								Short point = PredictHelper.calculatePoint(fixture, predict);
 								if (point > 0) {
-									if (point == 4) {
+									if (point == 3) {
 										userPointDto.setCorrectResultAndScore(userPointDto.getCorrectResultAndScore() + 1);
 									}
 									else {
@@ -455,9 +443,7 @@ public class PredictServiceImpl implements PredictService {
 				//
 				PredictChampion p = mapPredictChampion.get(user.getUsername());
 				if (p != null) {
-					
-					userPointDto.setExtraPointFlag("Y");
-					
+					userPointDto.setExtraPoint(1);
 					if (championId > 0) {
 						if (p.getTeamId().intValue() == championId) {
 							if (p.getRound().shortValue() == 8) {
@@ -476,7 +462,6 @@ public class PredictServiceImpl implements PredictService {
 					}
 					else {
 						for (Fixture fixture : listFixture) {
-							//if (fixture.getRound() != null && fixture.getRound().shortValue() == p.getRound().shortValue()) {
 							if (fixture.getRound() != null) {
 								if (fixture.getHome().getId().intValue() == p.getTeamId().intValue() || fixture.getAway().getId().intValue() == p.getTeamId().intValue()) {
 									int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
@@ -501,7 +486,7 @@ public class PredictServiceImpl implements PredictService {
 					}
 				}
 				
-				userPointDto.setTotalPoint(userPointDto.getPoint() + (userPointDto.getExtraPoint() == 99 ? 0 : userPointDto.getExtraPoint()));
+				userPointDto.setTotalPoint(userPointDto.getPoint() + ((userPointDto.getExtraPoint() == -1 || userPointDto.getExtraPoint() == 1) ? 0 : userPointDto.getExtraPoint()));
 				
 				result.add(userPointDto);
 			}
@@ -515,7 +500,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public Boolean updatePoint(Short week) {
-		LOGGER.info(" updatePoint (week: " + week + ")");
+		LOGGER.debug(" updatePoint (week: " + week + ")");
 		
 		Boolean result = false;
 		
@@ -548,7 +533,7 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public Boolean predictChampion(PredictChampionDto predictChampionDto) {
-		LOGGER.info(" save predict champion");
+		LOGGER.debug(" save predict champion");
 		
 		Boolean result = false;
 		
@@ -577,7 +562,7 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public PredictChampionDto findPredictChampionByUser(String username) {
-		LOGGER.info(" findPredictChampionByUser");
+		LOGGER.debug(" findPredictChampionByUser");
 		
 		PredictChampionDto predictChampionDto = null;
 		
@@ -596,7 +581,7 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictChampionDisplayDto> resultPredictChampion() {
-		LOGGER.info(" result predict champion");
+		LOGGER.debug(" result predict champion");
 		
 		List<PredictChampionDisplayDto> result = new ArrayList<PredictChampionDisplayDto>();
 		
@@ -622,15 +607,15 @@ public class PredictServiceImpl implements PredictService {
 				if (Helper.null2Blank(fixture.getRound() + "").equals("2")) {
 					int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
 					int awayScore = Helper.string2Integer(Helper.null2Zero(fixture.getAwayScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayPenaltyScore() + ""));
-					LOGGER.info(" homescore: " + homeScore);
-					LOGGER.info(" awayscore: " + awayScore);
+					LOGGER.debug(" homescore: " + homeScore);
+					LOGGER.debug(" awayscore: " + awayScore);
 					if (homeScore > awayScore) {
 						championId = fixture.getHome().getId();
 					}
 					if (awayScore > homeScore) {
 						championId = fixture.getAway().getId();
 					}
-					LOGGER.info(" championId: " + championId);
+					LOGGER.debug(" championId: " + championId);
 				}
 			}
 			
@@ -665,8 +650,8 @@ public class PredictServiceImpl implements PredictService {
 						}
 					}
 					else {
+						predictChampionDisplayDto.setPoint("?");
 						for (Fixture fixture : listFixture) {
-							//if (fixture.getRound() != null && fixture.getRound().shortValue() == predictChampion.getRound().shortValue()) {
 							if (fixture.getRound() != null) {
 								if (fixture.getHome().getId().intValue() == predictChampion.getTeamId().intValue() || fixture.getAway().getId().intValue() == predictChampion.getTeamId().intValue()) {
 									int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
@@ -688,29 +673,6 @@ public class PredictServiceImpl implements PredictService {
 								}
 							}
 						}
-						
-						/*
-						if (predictChampionDisplayDto.getPoint().equals("")) {
-							for (Fixture fixture : listFixture) {
-								if (fixture.getHome().getId().intValue() == predictChampion.getTeamId().intValue() || fixture.getAway().getId().intValue() == predictChampion.getTeamId().intValue()) {
-									int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
-									int awayScore = Helper.string2Integer(Helper.null2Zero(fixture.getAwayScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayPenaltyScore() + ""));
-									
-									if (fixture.getHome().getId().intValue() == predictChampion.getTeamId().intValue()) {
-										if (homeScore < awayScore) {
-											predictChampionDisplayDto.setPoint("0");
-										}
-									}
-									if (fixture.getAway().getId().intValue() == predictChampion.getTeamId().intValue()) {
-										if (homeScore > awayScore) {
-											predictChampionDisplayDto.setPoint("0");
-										}
-									}
-									break;
-								}
-							}
-						}
-						*/
 					}
 				}
 				
@@ -722,6 +684,88 @@ public class PredictServiceImpl implements PredictService {
 		}
 		
 		return result;
+	}
+
+	@Override
+	public List<UserPredictPerformanceDto> performance(String username) {
+		LOGGER.debug(" performance: " + username);
+		
+		List<UserPredictPerformanceDto> listUserPredictPerformanceDto = new ArrayList<UserPredictPerformanceDto>();
+		
+		try {
+			//
+			List<Predict> listPredict = predictDao.findByUser(username);
+			Map<Long, Predict> mapPredict = new HashMap<Long, Predict>();
+			for (Predict predict : listPredict) {
+				mapPredict.put(predict.getFixture(), predict);
+			}
+			
+			//
+			UserPredictPerformanceDto userPredictPerformanceDto = null;
+			List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
+			
+			int rec = 0;
+			Short w = 0;
+			Date day = null;
+			List<Fixture> listFixture =  fixtureDao.findAll();
+			for (Fixture fixture : listFixture) {
+				rec++;
+				
+				//
+				if (rec > 1 && fixture.getWeek().shortValue() != w.shortValue()) {
+					userPredictPerformanceDto = new UserPredictPerformanceDto();
+					userPredictPerformanceDto.setWeek(w + "");
+					userPredictPerformanceDto.setDay(Helper.date2String(day));
+					userPredictPerformanceDto.setListFixture(listPredictResultDetailDto);
+					listUserPredictPerformanceDto.add(userPredictPerformanceDto);
+					listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
+				}
+				
+				//
+				PredictResultDetailDto predictResultDetailDto = new PredictResultDetailDto();
+				predictResultDetailDto.setHomeTitle(fixture.getHome().getTitle());
+				predictResultDetailDto.setAwayTitle(fixture.getAway().getTitle());
+				predictResultDetailDto.setHomeShortTitle(fixture.getHome().getShortTitle());
+				predictResultDetailDto.setAwayShortTitle(fixture.getAway().getShortTitle());
+				predictResultDetailDto.setHomeScore(Helper.nullObj2Blank(fixture.getHomeScore()) + "");
+				predictResultDetailDto.setAwayScore(Helper.nullObj2Blank(fixture.getAwayScore()) + "");
+				predictResultDetailDto.setHomeExtraTimeScore(Helper.nullObj2Blank(fixture.getHomeExtraTimeScore()) + "");
+				predictResultDetailDto.setAwayExtraTimeScore(Helper.nullObj2Blank(fixture.getAwayExtraTimeScore()) + "");
+				predictResultDetailDto.setHomePenaltyScore(Helper.nullObj2Blank(fixture.getHomePenaltyScore()) + "");
+				predictResultDetailDto.setAwayPenaltyScore(Helper.nullObj2Blank(fixture.getAwayPenaltyScore()) + "");
+				
+				//
+				Predict predict = mapPredict.get(fixture.getId());
+				if (predict != null) {
+					predictResultDetailDto.setPredictHomeScore(Helper.nullObj2Blank(predict.getHomeScore()) + "");
+					predictResultDetailDto.setPredictAwayScore(Helper.nullObj2Blank(predict.getAwayScore()) + "");
+					if (fixture.getHomeScore() != null && predictResultDetailDto.getHomeScore() != null) {
+						predictResultDetailDto.setPoint(Helper.string2Integer(PredictHelper.calculatePoint(fixture, predict) + 1 + ""));
+					}
+				}
+				
+				//
+				listPredictResultDetailDto.add(predictResultDetailDto);
+				
+				//
+				if (rec == listFixture.size()) {
+					userPredictPerformanceDto = new UserPredictPerformanceDto();
+					userPredictPerformanceDto.setWeek(fixture.getWeek() + "");
+					userPredictPerformanceDto.setDay(Helper.date2String(fixture.getFixtureDate()));
+					userPredictPerformanceDto.setListFixture(listPredictResultDetailDto);
+					listUserPredictPerformanceDto.add(userPredictPerformanceDto);
+					listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
+				}
+				
+				w = fixture.getWeek().shortValue();
+				day = fixture.getFixtureDate();
+			}
+		}
+		catch (Exception ex) {
+			LOGGER.error(ex, ex);
+		}
+		
+		return listUserPredictPerformanceDto;		
 	}
 
 }

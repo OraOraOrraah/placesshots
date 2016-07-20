@@ -18,6 +18,7 @@ if (username == null) {
 	<meta http-equiv="Cache-Control" content="no-cache" />
 	
 	<link rel="stylesheet" href="<c:url value="/css/placesshots.css" />" />
+	<link rel="stylesheet" href="<c:url value="/css/jquery-ui.css" />" />
 	
 	<script type="text/javascript" src="<c:url value="/js/form.js" />"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery-1.7.2.min.js" />"></script>
@@ -50,13 +51,13 @@ if (username == null) {
 	</script>
 </head>
 <body>
+	<tiles:insertAttribute name="menu"/>
+	<tiles:insertAttribute name="content"/>
 	<div id="successMsgDiv" class="ui-widget" style="display: none;">
 		<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
 			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></p>
 			<p id="successMsgDivP" class="success">Success</p>
 		</div>
 	</div>
-	<tiles:insertAttribute name="menu"/>
-	<tiles:insertAttribute name="content"/>
 </body>
 </html>
