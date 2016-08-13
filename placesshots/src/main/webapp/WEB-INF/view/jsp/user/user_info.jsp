@@ -1,0 +1,1 @@
+${displayName} <img src="${imageURL}" />
