@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContextEvent;
@@ -16,8 +14,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
-import com.kugiojotaro.placesshots.util.Helper;
+import com.kugiojotaro.placesshots.util.Consts;
 
 public class AppContextListener implements ServletContextListener {
 
@@ -67,9 +64,9 @@ public class AppContextListener implements ServletContextListener {
 //	        rs.close();
 //	        stmt.close();
 	      
-	        servletContextEvent.getServletContext().setAttribute(PlaceShotsConstant.WEEK, week);
-	        servletContextEvent.getServletContext().setAttribute(PlaceShotsConstant.ROUND, round);
-	        servletContextEvent.getServletContext().setAttribute(PlaceShotsConstant.LIVE, live.equals("1") ? Boolean.TRUE : Boolean.FALSE);
+	        servletContextEvent.getServletContext().setAttribute(Consts.WEEK, week);
+	        servletContextEvent.getServletContext().setAttribute(Consts.ROUND, round);
+	        servletContextEvent.getServletContext().setAttribute(Consts.LIVE, live.equals("1") ? Boolean.TRUE : Boolean.FALSE);
 //	        servletContextEvent.getServletContext().setAttribute(PlaceShotsConstant.MAP_USER_ICON, mapUserIcon);
 	    }
 	    catch (Exception e) {

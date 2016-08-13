@@ -41,6 +41,10 @@
 		<put-attribute name="content" value="/WEB-INF/view/jsp/user/forgotpassword_adm.jsp"  />
 	</definition>
 	
+	<definition name="user/info" extends="layoutBlank">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/user/user_info.jsp"  />
+	</definition>
+	
 	<definition name="team/form" extends="layoutMain">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/team/team_form.jsp"  />
 	</definition>
@@ -87,6 +91,18 @@
 	
 	<definition name="predict/extraresult" extends="layoutBlank">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/predict/champion_result.jsp"  />
+	</definition>
+	
+	<definition name="connect/facebookConnected" extends="layoutBlank">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/login/facebook-connected.jsp"  />
+	</definition>
+	
+	<definition name="fixture/all" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_all.jsp"  />
+	</definition>
+	
+	<definition name="fixture/load" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_load.jsp"  />
 	</definition>
 	
 </tiles-definitions>

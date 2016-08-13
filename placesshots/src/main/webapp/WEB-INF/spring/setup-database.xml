@@ -25,6 +25,7 @@
 	</bean>
 
 	<jpa:repositories base-package="com.kugiojotaro.placesshots.dao" />
+	<jpa:repositories base-package="com.kugiojotaro.placesshots.repository" factory-class="org.springframework.data.jpa.datatables.repository.DataTablesRepositoryFactoryBean" /> 
 	
 	<tx:annotation-driven transaction-manager="transactionManager" />
 	

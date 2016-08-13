@@ -5,11 +5,539 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+
 </head>
 <body>
 	<br/><br/>
-	<div align="center">
-		<table sborder="0">
+	<div id="tabs">
+		<ul>
+	    	<li><a href="#tabs-11">รอบแรก นัด 1</a></li>
+	    	<li><a href="#tabs-12">รอบแรก นัด 2</a></li>
+	    	<li><a href="#tabs-13">รอบแรก นัด 3</a></li>
+	    	<li><a href="#tabs-16">รอบ 16 ทีม</a></li>
+	    	<li><a href="#tabs-8">รอบ 8 ทีม</a></li>
+	    	<li><a href="#tabs-4">รอบรอง</a></li>
+	    	<li><a href="#tabs-2">รอบชิง</a></li>
+	    	<li><a href="#tabs-0">รวม</a></li>
+	    </ul>
+	    <div id="tabs-11">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:150px;">
+						<div style="text-align:left;">
+							&nbsp;
+						</div>
+					</td>
+					<td valign="top" style="width:150px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัดที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:180px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัดที่ทายถูก(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:180px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัดที่ทายถูก(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:180px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัดที่ทายผิด(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings11}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-12">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายผิด<br/>(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings12}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-13">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายผิด<br/>(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings13}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-16">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายผิด<br/>(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings16}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-8">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายผิด<br/>(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings8}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-4">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายผิด<br/>(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings4}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-2">
+	    	<table>
+				<tr>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทาย</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(4)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายถูก<br/>(2)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>จำนวนนัด<br/>ที่ทายผิด<br/>(1)</b>
+						</div>
+					</td>
+					<td valign="top" style="width:100px;">
+						<div style="text-align:center;">
+							<b>คะแนน</b>
+						</div>
+					</td>
+				<tr>
+			<c:forEach var="userPointDto" items="${standings2}" varStatus="idx">
+				<tr>
+					<td style="height:25px;">
+						<c:out value="${userPointDto.username}" />
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.predictCount}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResultAndScore}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.correctResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="highlightScore">
+								<c:out value="${userPointDto.incorrectResult}" />
+							</span>
+						</div>
+					</td>
+					<td style="height:25px;">
+						<div style="text-align:center;">
+							<span class="displayPoint">
+								<c:out value="${userPointDto.point}" />
+							</span>
+						</div>
+					</td>
+				</tr>
+			</c:forEach>
+			</table>
+	    </div>
+	    <div id="tabs-0">
+	    	<table border="0">
 			<tr>
 <!-- 				<td valign="top" style="width:80px;"> -->
 <!-- 					<div style="text-align:center;"> -->
@@ -175,6 +703,7 @@
 			</tr>
 			</c:forEach>
 		</table>
+	    </div>
 	</div>
 </body>
 </html>

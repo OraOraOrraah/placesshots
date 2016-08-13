@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,14 +21,15 @@ import com.kugiojotaro.placesshots.dto.LeagueDto;
 import com.kugiojotaro.placesshots.dto.TeamDto;
 import com.kugiojotaro.placesshots.service.LeagueService;
 import com.kugiojotaro.placesshots.service.TeamService;
-import com.kugiojotaro.placesshots.util.Constant;
+import com.kugiojotaro.placesshots.util.Consts;
 import com.kugiojotaro.placesshots.util.Helper;
+
+import lombok.extern.log4j.Log4j;
 
 @Controller
 @RequestMapping(value="/adm/team")
+@Log4j
 public class TeamController {
-	
-	private static final Logger LOGGER = Logger.getLogger(TeamController.class);
 	
 	@Autowired
 	private LeagueService leagueService;
@@ -51,21 +51,23 @@ public class TeamController {
 	
 	@RequestMapping(value="/add", method=RequestMethod.GET)
 	public String add(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" add");
+		log.info(" add");
 		
 		initDropdownItem(modelMap);
-		request.setAttribute("mode", Constant.MODE_ADD);
+		request.setAttribute("mode", Consts.MODE_ADD);
 		request.setAttribute("teamDto", new TeamDto());
+		
+		teamService.create(null);
 		
 		return "team/form";
 	}
 	
 	@RequestMapping(value="/edit", method=RequestMethod.POST)
 	public String edit(@RequestParam(value = "id", required = true) String id, ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" edit");
+		log.info(" edit");
 		
 		initDropdownItem(modelMap);
-		request.setAttribute("mode", Constant.MODE_EDIT);
+		request.setAttribute("mode", Consts.MODE_EDIT);
 		request.setAttribute("teamDto", teamService.selectById(Helper.string2Integer(id)));
 		
 		return "team/form";
@@ -73,20 +75,20 @@ public class TeamController {
 	
 	@RequestMapping(value="/save", method=RequestMethod.POST)
 	public @ResponseBody AjaxJsonResponse save(@ModelAttribute("teamDTO") TeamDto teamDto, BindingResult result, @RequestParam(value = "mode", required = true) String mode, ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" save");
+		log.info(" save");
 		
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 		
 		try {
-			if (mode.equals(Constant.MODE_ADD)) {
+			if (mode.equals(Consts.MODE_ADD)) {
 				teamService.create(teamDto);
 			}
-			else if (mode.equals(Constant.MODE_EDIT)) {
+			else if (mode.equals(Consts.MODE_EDIT)) {
 				teamService.update(teamDto);
 			}
 		}
 		catch (Exception ex) {
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;

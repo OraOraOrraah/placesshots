@@ -2,6 +2,15 @@ package com.kugiojotaro.placesshots.dto;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class PredictChampionDto implements Serializable {
 
 	private static final long serialVersionUID = 236161925302832755L;
@@ -10,30 +19,5 @@ public class PredictChampionDto implements Serializable {
 	private String user;
 	private String teamId;
 	private String round;
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getUser() {
-		return user;
-	}
-	public void setUser(String user) {
-		this.user = user;
-	}
-	public String getTeamId() {
-		return teamId;
-	}
-	public void setTeamId(String teamId) {
-		this.teamId = teamId;
-	}
-	public String getRound() {
-		return round;
-	}
-	public void setRound(String round) {
-		this.round = round;
-	}
 	
 }

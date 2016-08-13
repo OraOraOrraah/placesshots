@@ -13,8 +13,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table(name = "fixture")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class Fixture implements Serializable {
 
 	private static final long serialVersionUID = -8142639886988638315L;
@@ -24,7 +37,9 @@ public class Fixture implements Serializable {
 	private Short week;
 	private Team home;
 	private Team away;
+	@JsonView(DataTablesOutput.View.class)
 	private Short homeScore;
+	@JsonView(DataTablesOutput.View.class)
 	private Short awayScore;
 	private Short homeExtraTimeScore;
 	private Short awayExtraTimeScore;
@@ -34,7 +49,7 @@ public class Fixture implements Serializable {
 	private Short redCardFlag;
 	private Short overTimeFlag;
 	private Short penaltyFlag;
-	private Short round;
+	private String round;
 	private String createBy;
 	private Date createDate;
 	private String updateBy;
@@ -166,10 +181,10 @@ public class Fixture implements Serializable {
 	}
 	
 	@Column(name = "round")
-	public Short getRound() {
+	public String getRound() {
 		return round;
 	}
-	public void setRound(Short round) {
+	public void setRound(String round) {
 		this.round = round;
 	}
 	

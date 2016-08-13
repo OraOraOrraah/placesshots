@@ -1,8 +1,6 @@
 package com.kugiojotaro.placesshots.service.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +10,8 @@ import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.kugiojotaro.placesshots.dao.UserDao;
-import com.kugiojotaro.placesshots.dao.UserItemDao;
 import com.kugiojotaro.placesshots.dto.UserChangePasswordDto;
 import com.kugiojotaro.placesshots.dto.UserDto;
-import com.kugiojotaro.placesshots.dto.UserItemDto;
 import com.kugiojotaro.placesshots.entity.User;
 import com.kugiojotaro.placesshots.mapper.UserMapper;
 import com.kugiojotaro.placesshots.service.UserService;
@@ -27,9 +23,6 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserDao userDao;
-	
-	@Autowired
-	private UserItemDao userItemDao;
 	
 	@Autowired
 	private UserMapper userMapper;
@@ -48,26 +41,6 @@ public class UserServiceImpl implements UserService {
 			userDao.save(user);
 			
 			LOGGER.info(" registered user: " + userDto.getUsername());
-			/*
-			Item item2 = new Item();
-			item2.setId((short) 1);
-			
-			Item item3 = new Item();
-			item3.setId((short) 2);
-			
-			UserItem userItem = new UserItem();
-			userItem.setItem(item2);
-			userItem.setUser(user);
-			userItem.setQuantity((short) 8);
-			
-			UserItem userItem2 = new UserItem();
-			userItem2.setItem(item3);
-			userItem2.setUser(user);
-			userItem2.setQuantity((short) 2);
-			
-			userItemDao.save(userItem);
-			userItemDao.save(userItem2);
-			*/
 		}
 		catch (Exception ex) {
 			LOGGER.error(ex, ex);
@@ -82,7 +55,7 @@ public class UserServiceImpl implements UserService {
 		LOGGER.debug(" update");
 		
 		try {
-			User user = userDao.findOne(userDto.getUsername());
+			User user = userDao.findByUsername(userDto.getUsername());
 			user.setPassword(md5PasswordEncoder.encodePassword(userDto.getPassword(), null));
 			user = userMapper.toPersistenceBean(userDto);
 			user.setUpdateDate(new Date());
@@ -101,8 +74,7 @@ public class UserServiceImpl implements UserService {
 		LOGGER.debug(" update");
 		
 		try {
-			User user = userDao.findOne(userDto.getUsername());
-			user.setIcon(userDto.getIcon());
+			User user = userDao.findByUsername(userDto.getUsername());
 			user.setUpdateDate(new Date());
 			userDao.save(user);
 		}
@@ -128,9 +100,16 @@ public class UserServiceImpl implements UserService {
 		UserDto userDto = null;
 		
 		try {
-			User user = userDao.findOne(username);
+			User user = userDao.findByUsername(username);
 			if (user != null) {
 				userDto = userMapper.toDtoBean(user);
+				if (user.getUserConnection() == null) {
+					userDto.setDisplayName(userDto.getUsername());
+				}
+				else {
+					userDto.setDisplayName(user.getUserConnection().getDisplayName());
+					userDto.setImageURL(user.getUserConnection().getImageUrl());
+				}
 			}
 		}
 		catch (Exception ex) {
@@ -147,7 +126,7 @@ public class UserServiceImpl implements UserService {
 		UserDto userDto = null;
 		
 		try {
-			User user = userDao.findOne(username);
+			User user = userDao.findByUsername(username);
 			if (user != null) {
 				String md5Password = md5PasswordEncoder.encodePassword(password, null);
 				if (user.getPassword().equals(md5Password)) {
@@ -168,36 +147,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserItemDto> selectUserItem(String username) {
-		LOGGER.debug(" selectUserItem (username: " + username + ")");
-		
-		List<UserItemDto> result = new ArrayList<UserItemDto>();
-		
-		try {
-			User user = userDao.findFetchItem(username);
-			/*
-			for (UserItem userItem : user.getUserItems()) {
-				UserItemDto userItemDto = new UserItemDto();
-				//userItemDto.setUsername(username);
-				userItemDto.setItemTitle(userItem.getItem().getTitle());
-				userItemDto.setQuantity(userItem.getQuantity());
-				
-				result.add(userItemDto);
-			}
-			*/
-		}
-		catch (Exception ex) {
-			LOGGER.error(ex, ex);
-		}
-		
-		return result;
-	}
-
-	@Override
 	public Boolean changepassword(UserChangePasswordDto userChangePasswordDto) {
 		LOGGER.info(" changepassword (username: " + userChangePasswordDto.getUsername() + ")");
 		try {
-			User user = userDao.findOne(userChangePasswordDto.getUsername());
+			User user = userDao.findByUsername(userChangePasswordDto.getUsername());
 			user.setPassword(md5PasswordEncoder.encodePassword(userChangePasswordDto.getPassword(), null));
 			userDao.save(user);
 			LOGGER.info(" changepassword success");

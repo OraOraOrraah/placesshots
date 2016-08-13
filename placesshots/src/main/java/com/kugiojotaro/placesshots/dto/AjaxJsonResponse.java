@@ -3,7 +3,7 @@ package com.kugiojotaro.placesshots.dto;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.kugiojotaro.placesshots.util.Constant;
+import com.kugiojotaro.placesshots.util.Consts;
 
 public class AjaxJsonResponse implements Serializable {
 
@@ -14,7 +14,7 @@ public class AjaxJsonResponse implements Serializable {
 	private Map<String,String> errorsMap;
 
 	public AjaxJsonResponse() {
-		setResult(Constant.RESULT_SUCCESS);
+		setResult(Consts.RESULT_SUCCESS);
 	}
 	
 	public String getResult() {

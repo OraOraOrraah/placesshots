@@ -99,7 +99,7 @@
 		});
 	
 		$("#buttonSave").click(function(){
-			ajaxPost('${predictSave}', $('#formPredict').serialize(), function(response) {
+			ajaxPost('${predictSave}', $('#formPredict').serialize(), header, token, function(response) {
 				if (response.result == "success") {
 					$("#successMsgDiv2").show();
 				}

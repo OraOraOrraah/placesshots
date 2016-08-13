@@ -6,24 +6,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
 
-import com.kugiojotaro.placesshots.dao.UserDao;
+import lombok.extern.log4j.Log4j;
 
+@Component("ajaxAuthenticationFailureHandler")
+@Log4j
 public class AuthenFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 	
-	private static final Logger LOGGER = Logger.getLogger(AuthenFailureHandler.class);
-	
-	private UserDao userDao;
-	
-	public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse resp, AuthenticationException auth) throws IOException, ServletException {
-		String username = (String)req.getParameter("j_username");
-		LOGGER.info(" onAuthenticationFailure (username: " + username + ")");
-
-		super.onAuthenticationFailure(req, resp, auth);
+	public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse resp, Authentication auth, AuthenticationException authEx) throws IOException, ServletException {
+		log.info(" onAuthenticationFailure (auth: " + auth + ")");
 	}
 	
 }

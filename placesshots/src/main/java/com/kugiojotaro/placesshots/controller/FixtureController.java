@@ -4,10 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -18,22 +19,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.kugiojotaro.placesshots.dto.AjaxJsonResponse;
 import com.kugiojotaro.placesshots.dto.FixtureDto;
 import com.kugiojotaro.placesshots.dto.LeagueDto;
 import com.kugiojotaro.placesshots.dto.TeamDto;
+import com.kugiojotaro.placesshots.entity.Fixture;
 import com.kugiojotaro.placesshots.service.FixtureService;
 import com.kugiojotaro.placesshots.service.LeagueService;
 import com.kugiojotaro.placesshots.service.TeamService;
-import com.kugiojotaro.placesshots.util.Constant;
+import com.kugiojotaro.placesshots.util.Consts;
 import com.kugiojotaro.placesshots.util.Helper;
 
+import lombok.extern.log4j.Log4j;
+
 @Controller
+@Log4j
 @RequestMapping(value="/adm/fixture")
 public class FixtureController {
-	
-	private static final Logger LOGGER = Logger.getLogger(FixtureController.class);
 	
 	@Autowired
 	private FixtureService fixtureService;
@@ -48,7 +51,7 @@ public class FixtureController {
 	
 	@RequestMapping(value="/add", method=RequestMethod.GET)
 	public String add(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		request.setAttribute("mode", Constant.MODE_ADD);
+		request.setAttribute("mode", Consts.MODE_ADD);
 		request.setAttribute("fixtureDto", new FixtureDto());
 		
 		dropdownItem = new LinkedHashMap<String,String>();
@@ -58,7 +61,7 @@ public class FixtureController {
 		modelMap.put("listLeague", dropdownItem);
 		
 		dropdownItem = new LinkedHashMap<String,String>();
-		for (TeamDto teamDto : teamService.findByLeague((short) PlaceShotsConstant.EURO_2016)) {////
+		for (TeamDto teamDto : teamService.findByLeague((short) Consts.EURO_2016)) {////
 			dropdownItem.put((teamDto.getId() + ""), teamDto.getTitle());
 		}
 		modelMap.put("listTeam", dropdownItem);
@@ -71,18 +74,18 @@ public class FixtureController {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 		
 		try {
-			if (mode.equals(Constant.MODE_ADD)) {
-				fixtureDto.setCreateBy((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			if (mode.equals(Consts.MODE_ADD)) {
+				fixtureDto.setCreateBy((String) request.getSession().getAttribute(Consts.AUTHEN_USER));
 				fixtureService.create(fixtureDto);
 			}
-			else if (mode.equals(Constant.MODE_EDIT)) {
-				fixtureDto.setUpdateBy((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			else if (mode.equals(Consts.MODE_EDIT)) {
+				fixtureDto.setUpdateBy((String) request.getSession().getAttribute(Consts.AUTHEN_USER));
 				fixtureService.update(fixtureDto);
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			log.error(ex, ex);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -95,6 +98,7 @@ public class FixtureController {
 		try {
 			//FixtureDto fixtureDto = fixtureService.selectById(Helper.string2Long((String) request.getParameter("id")));
 			FixtureDto fixtureDto = new FixtureDto();
+			FixtureDto.builder().awayExtraTimeScore("").awayShortTitle("").awayTitle("");
 			fixtureDto.setId((String) request.getParameter("id"));
 			fixtureDto.setHomeScore((String) request.getParameter("homeScore"));
 			fixtureDto.setAwayScore((String) request.getParameter("awayScore"));
@@ -102,12 +106,12 @@ public class FixtureController {
 			fixtureDto.setAwayExtraTimeScore((String) request.getParameter("awayExtraTimeScore"));
 			fixtureDto.setHomePenaltyScore((String) request.getParameter("homePenaltyScore"));
 			fixtureDto.setAwayPenaltyScore((String) request.getParameter("awayPenaltyScore"));
-			fixtureDto.setUpdateBy((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			fixtureDto.setUpdateBy((String) request.getSession().getAttribute(Consts.AUTHEN_USER));
 			fixtureService.updateScore(fixtureDto);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			log.error(ex, ex);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -115,7 +119,7 @@ public class FixtureController {
 	
 	@RequestMapping(value="/list/{week}", method=RequestMethod.GET)
 	public String list(ModelMap modelMap, HttpServletRequest request, @PathVariable String week) throws Exception {
-		request.setAttribute("listFixtureDto", fixtureService.findByLeagueAndWeek((short) PlaceShotsConstant.EURO_2016, Helper.string2Short(week)));
+		request.setAttribute("listFixtureDto", fixtureService.findByLeagueAndWeek((short) Consts.EURO_2016, Helper.string2Short(week)));
 		
 		dropdownItem = new LinkedHashMap<String,String>();
 		for (short i = 1; i<= (short) 23; i++) {
@@ -125,7 +129,21 @@ public class FixtureController {
 		
 		request.setAttribute("week", week);
 		
-		return "fixture/list";
+		return "fixture/load";
+	}
+	
+	@RequestMapping(value="/all", method=RequestMethod.GET)
+	public String list(ModelMap modelMap, HttpServletRequest request) throws Exception {
+		return "fixture/all";
+	}
+	
+	@ResponseBody
+	@JsonView(DataTablesOutput.View.class)
+	@RequestMapping(value = "/load", method = RequestMethod.GET)
+	public DataTablesOutput<Fixture> load(@Valid DataTablesInput input) {
+		log.info(" load : " + input);
+		DataTablesOutput<Fixture> res = fixtureService.getFixture(input);
+		return res;
 	}
 	
 }

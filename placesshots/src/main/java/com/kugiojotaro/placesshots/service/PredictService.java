@@ -38,7 +38,7 @@ public interface PredictService {
 	
 	List<PredictResultDto> result(String username);
 	
-	List<UserPointDto> standing(Short week);
+	List<UserPointDto> standing(String round);
 	
 	@Transactional
 	public Boolean updatePoint(Short week);

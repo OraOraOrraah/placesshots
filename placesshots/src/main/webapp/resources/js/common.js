@@ -1,4 +1,4 @@
-$(function () {
+/*$(function () {
 	$('.numberOnly').keyup(function () { 
 		this.value = this.value.replace(/[^0-9]/g,'');
     });
@@ -18,7 +18,7 @@ $(function () {
 	 $(".numberWithComma").live("blur", function() {			 		
 		 this.value = this.value.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 	 }); 
- });
+ });*/
 
 jQuery.extend({
     constant: {
@@ -33,7 +33,7 @@ jQuery.extend({
         },
 
         popup: function(link) {
-            window.open(link, 'AEON', 'height=600, width=800, left=100, top=100, location=0, menubar=1, status=0, toolbar=0');
+            window.open(link, 'POPUP', 'height=600, width=800, left=100, top=100, location=0, menubar=1, status=0, toolbar=0');
         }
     },
     kui: {
@@ -331,9 +331,10 @@ jQuery.fn.extend({
 
 });
 
-function ajaxPost(url, data, callback, unblock) {
+function ajaxPost(url, data, header, token, callback, unblock) {
 	$.ajax({url: url, data: data, cache: false, type: "POST",
-		beforeSend: function() {
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader(header, token);
 			$.blockUI({ message: 'Processing...',css: {
 	            border: 'none', 
 	            padding: '15px', 
@@ -356,7 +357,7 @@ function ajaxPost(url, data, callback, unblock) {
 		});
 }
 
-function ajaxGet(url, data, callback, unblock) {
+function ajaxGet(url, data, header, token, callback, unblock) {
 	$.ajax({url: url, data: data, cache: false, type: "GET",
 		beforeSend: function() {
 			$.blockUI({ message: 'Processing...',css: {

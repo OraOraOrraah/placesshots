@@ -1,18 +1,14 @@
 package com.kugiojotaro.placesshots.controller;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.kugiojotaro.placesshots.util.Constant;
+import com.kugiojotaro.placesshots.util.Consts;
 import com.kugiojotaro.placesshots.util.Helper;
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
+
+import lombok.extern.log4j.Log4j;
+
 import com.kugiojotaro.placesshots.dto.AjaxJsonResponse;
 import com.kugiojotaro.placesshots.dto.FixtureDto;
 import com.kugiojotaro.placesshots.dto.PredictChampionDisplayDto;
@@ -44,25 +42,30 @@ import com.kugiojotaro.placesshots.service.FixtureService;
 
 @Controller
 @RequestMapping(value="/predict")
-public class PredictController {
-	
-	private static final Logger LOGGER = Logger.getLogger(PredictController.class);
+@Log4j
+public class PredictController extends BaseController {
 	
 	@Autowired
 	private FixtureService fixtureService;
+	
 	@Autowired
 	private PredictService predictService;
+	
 	@Autowired
 	private TeamService teamService;
 	
 	private Map<String,String> dropdownItem;
 	
+	private String getUserDisplayName(HttpServletRequest request) {
+		return "temp";
+	}
+	
 	private void indexInit(ModelMap modelMap, HttpServletRequest request, String week) {
-		LOGGER.info(" index (user: " + (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER) + ", week: " + week + ")");
+		log.info(" index (user: " + getUserDisplayName(request) + ", week: " + week + ")");
 		
 		List<PredictDisplayDto> listPredictDisplayDto = new ArrayList<PredictDisplayDto>();
-		List<FixtureDto> listFixtureDto = fixtureService.findByLeagueAndWeek((short) PlaceShotsConstant.EURO_2016, Helper.string2Short(week));
-		List<PredictDto> listPredictDto = predictService.findByUserAndWeek((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER), Helper.string2Short(week));
+		List<FixtureDto> listFixtureDto = fixtureService.findByLeagueAndWeek((short) Consts.EURO_2016, Helper.string2Short(week));
+		List<PredictDto> listPredictDto = predictService.findByUserAndWeek("", Helper.string2Short(week));
 		
 		int i = 1;
 		for (FixtureDto fixtureDto : listFixtureDto) {
@@ -91,7 +94,7 @@ public class PredictController {
 		request.setAttribute("listPredictDisplayDto", listPredictDisplayDto);
 		
 		// live, mean avaliable to save
-		if (Helper.string2Short(week).shortValue() < Helper.string2Short((String) request.getServletContext().getAttribute(PlaceShotsConstant.WEEK)).shortValue()) {
+		if (Helper.string2Short(week).shortValue() < Helper.string2Short((String) request.getServletContext().getAttribute(Consts.WEEK)).shortValue()) {
 			request.setAttribute("live", "0");
 		}
 		else {
@@ -152,18 +155,18 @@ public class PredictController {
 	
 	@RequestMapping(value = "/extra", method = RequestMethod.GET)
 	public String extra(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" extra : " + ((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER)));
+		log.info(" extra : " + getAuthUsername(request));
 		
 		String predictedChampionTeam = "";
 		String predictedChampionRound = "";
 			
 		//
-		PredictChampionDto predictChampionDto = predictService.findPredictChampionByUser((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+		PredictChampionDto predictChampionDto = predictService.findPredictChampionByUser(getAuthUsername(request));
 
 		String enableSave = "1";
 		String prediected = "N";
 		
-		//if (predictChampionDto != null && !predictChampionDto.getRound().equals((String) request.getServletContext().getAttribute(PlaceShotsConstant.ROUND))) {
+		//if (predictChampionDto != null && !predictChampionDto.getRound().equals((String) request.getServletContext().getAttribute(Consts.ROUND))) {
 		if (predictChampionDto != null) {	
 			prediected = "Y";
 			
@@ -184,7 +187,7 @@ public class PredictController {
 			
 		if (prediected.equals("N")) {
 			//
-			List<FixtureDto> listFixtureDto = fixtureService.findByRound(Helper.string2Short((String) request.getServletContext().getAttribute(PlaceShotsConstant.ROUND)));
+			List<FixtureDto> listFixtureDto = fixtureService.findByRound((String) request.getServletContext().getAttribute(Consts.ROUND));
 			for (FixtureDto fixtureDto : listFixtureDto) {
 				dropdownItem2.put(fixtureDto.getHomeId(), fixtureDto.getHomeTitle());
 				dropdownItem2.put(fixtureDto.getAwayId(), fixtureDto.getAwayTitle());
@@ -192,9 +195,9 @@ public class PredictController {
 		}
 		
 		//
-		predictChampionDto.setRound((String) request.getServletContext().getAttribute(PlaceShotsConstant.ROUND));
+		predictChampionDto.setRound((String) request.getServletContext().getAttribute(Consts.ROUND));
 		
-		LOGGER.info(" prediected: " + prediected);
+		log.info(" prediected: " + prediected);
 		
 		//
 		modelMap.put("predictChampionDto", predictChampionDto);
@@ -209,24 +212,24 @@ public class PredictController {
 	
 	@RequestMapping(value = "/extrasave", method = RequestMethod.POST)
 	public @ResponseBody AjaxJsonResponse saveChampion(@ModelAttribute("predictChampionDto") PredictChampionDto predictChampionDto, HttpServletRequest request) {
-		LOGGER.info(" extra save : " + ((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER)) + ", " + predictChampionDto.getTeamId());
+		log.info(" extra save : " + getUserDisplayName(request) + ", " + predictChampionDto.getTeamId());
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 		
 		try {
 			if (!predictChampionDto.getRound().equals((String) request.getServletContext().getAttribute("round"))) {
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				return ajaxJsonResponse;
 			}
 			
-			predictChampionDto.setUser((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			predictChampionDto.setUser(getAuthUsername(request));
 			predictService.predictChampion(predictChampionDto);
 			
-			ajaxJsonResponse.setResult(Constant.RESULT_SUCCESS);
+			ajaxJsonResponse.setResult(Consts.RESULT_SUCCESS);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -246,10 +249,10 @@ public class PredictController {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 		
 		try {
-			LOGGER.info(" predict save (user: " + (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER) + ", week: " + request.getParameter("week") + ")");
+			log.info(" predict save (user: " + getUserDisplayName(request) + ", week: " + request.getParameter("week") + ")");
 			
-			LOGGER.debug(" cur week: " + request.getServletContext().getAttribute("week"));
-			LOGGER.debug(" req week: " + request.getParameter("week"));
+			log.debug(" cur week: " + request.getServletContext().getAttribute("week"));
+			log.debug(" req week: " + request.getParameter("week"));
 			
 			if (Helper.string2Integer(request.getParameter("week")) >= (Helper.string2Integer((String) request.getServletContext().getAttribute("week")))) {
 				List<PredictDto> listPredictDto = new ArrayList<>();
@@ -269,24 +272,24 @@ public class PredictController {
 						/*if (redCardFlags[i].equals("1")) {
 							predictDto.setRedCardFlag("1");
 						}*/
-						predictDto.setUser((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+						predictDto.setUser(getAuthUsername(request));
 						
 						listPredictDto.add(predictDto);
 					}
 				}
 				
-				predictService.predict((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER), Helper.string2Short(request.getParameter("week")), listPredictDto);
+				predictService.predict(getAuthUsername(request), Helper.string2Short(request.getParameter("week")), listPredictDto);
 			}
 			else {
-				LOGGER.info(" week change!!");
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				log.info(" week change!!");
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 			}
 			
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -298,10 +301,10 @@ public class PredictController {
 	}
 	
 	private void resultInit(String week, ModelMap modelMap, HttpServletRequest request) {
-		LOGGER.info(" predict result (user: " + (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER) + ", week: " + week + ")");
+		log.info(" predict result (user: " + getUserDisplayName(request) + ", week: " + week + ")");
 		
 		//
-		List<FixtureDto> listFixtureDto = fixtureService.findByLeagueAndWeek ((short) PlaceShotsConstant.EURO_2016, Helper.string2Short(week));
+		List<FixtureDto> listFixtureDto = fixtureService.findByLeagueAndWeek ((short) Consts.EURO_2016, Helper.string2Short(week));
 		
 		List<PredictResultDto> listPredictResultHeaderDto = new ArrayList<PredictResultDto>();
 		PredictResultDto header = new PredictResultDto();
@@ -340,7 +343,7 @@ public class PredictController {
 		Collections.sort(listPredictResultDto, comparator);
 		
 		//
-//		Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute(PlaceShotsConstant.MAP_USER_ICON);
+//		Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute(Consts.MAP_USER_ICON);
 //		if (mapUserIcon != null) {
 //			for (PredictResultDto predictResultDto : listPredictResultDto) {
 //				predictResultDto.setUserIcon(Helper.null2Blank(mapUserIcon.get(predictResultDto.getUsername())));
@@ -391,14 +394,14 @@ public class PredictController {
 	
 	@RequestMapping(value = "/result", method = RequestMethod.GET)
 	public String result1(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" result1");
+		log.info(" result1");
 		String week = (String) request.getServletContext().getAttribute("week");
 		
 		if (Integer.parseInt(week) > 23) {
 			week = "23";
 		}
 //		else {
-//			if ((boolean) request.getServletContext().getAttribute(PlaceShotsConstant.LIVE)) {
+//			if ((boolean) request.getServletContext().getAttribute(Consts.LIVE)) {
 //				week = (Integer.parseInt(week) - 1) + "";
 //			}
 //		}
@@ -410,7 +413,7 @@ public class PredictController {
 	
 	@RequestMapping(value = "/result/{week}", method = RequestMethod.GET)
 	public String result2(ModelMap modelMap, HttpServletRequest request, @PathVariable String week) throws Exception {
-		LOGGER.info(" result2");
+		log.info(" result2");
 		resultInit(week, modelMap, request);
 		
 		return "predict/result";
@@ -418,7 +421,7 @@ public class PredictController {
 	
 	@RequestMapping(value = "/resultlastest", method = RequestMethod.GET)
 	public String resultLastest(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" resultLastest");
+		log.info(" resultLastest");
 		
 		String week = (String) request.getServletContext().getAttribute("week");
 
@@ -443,10 +446,10 @@ public class PredictController {
 	/*
 	@RequestMapping(value = "/myresult", method = RequestMethod.GET)
 	public String myresult(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" myresult: " + ((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER)));
+		log.info(" myresult: " + ((String) request.getSession().getAttribute(Consts.SESSION_USER)));
 		
 		//
-		List<FixtureDto> listFixtureDto = fixtureService.findByLeague(PlaceShotsConstant.WORLD_CUP_2014);
+		List<FixtureDto> listFixtureDto = fixtureService.findByLeague(Consts.WORLD_CUP_2014);
 		
 		List<PredictResultDto> listPredictResultHeaderDto = new ArrayList<PredictResultDto>();
 		PredictResultDto header = new PredictResultDto();
@@ -472,7 +475,7 @@ public class PredictController {
 		}
 		listPredictResultHeaderDto.add(header);
 				
-		List<PredictResultDto> listPredictResultDto = predictService.result(((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER)));
+		List<PredictResultDto> listPredictResultDto = predictService.result(((String) request.getSession().getAttribute(Consts.SESSION_USER)));
 		
 		request.setAttribute("listPredictResultDto", listPredictResultDto);
 		request.setAttribute("listFixtureDto", listFixtureDto);
@@ -483,12 +486,7 @@ public class PredictController {
 	
 	@RequestMapping(value = "/standing", method = RequestMethod.GET)
 	public String standing(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" standing (user: " + (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER) + ")");
-		
-		Short week = (short) (Helper.string2Short((String) request.getServletContext().getAttribute("week")) - 1);
-		
-		//
-		List<UserPointDto> standings = predictService.standing(week);
+		log.info(" standing (user: " + getUserDisplayName(request) + ")");
 		
 		//
 		Comparator<UserPointDto> comparator = new Comparator<UserPointDto>() {
@@ -512,8 +510,31 @@ public class PredictController {
 		};
 		
 		//
+		List<UserPointDto> standings11 = predictService.standing(Consts.ROUND_11);
+		List<UserPointDto> standings12 = predictService.standing(Consts.ROUND_12);
+		List<UserPointDto> standings13 = predictService.standing(Consts.ROUND_13);
+		List<UserPointDto> standings16 = predictService.standing(Consts.ROUND_16);
+		List<UserPointDto> standings8 = predictService.standing(Consts.ROUND_8);
+		List<UserPointDto> standings4 = predictService.standing(Consts.ROUND_4);
+		List<UserPointDto> standings2 = predictService.standing(Consts.ROUND_2);
+		List<UserPointDto> standings = predictService.standing(null);
+		
+		Collections.sort(standings11, comparator);
+		Collections.sort(standings12, comparator);
+		Collections.sort(standings13, comparator);
+		Collections.sort(standings16, comparator);
+		Collections.sort(standings8, comparator);
+		Collections.sort(standings4, comparator);
+		Collections.sort(standings2, comparator);
 		Collections.sort(standings, comparator);
 		
+		request.setAttribute("standings11", standings11);
+		request.setAttribute("standings12", standings12);
+		request.setAttribute("standings13", standings13);
+		request.setAttribute("standings16", standings16);
+		request.setAttribute("standings8", standings8);
+		request.setAttribute("standings4", standings4);
+		request.setAttribute("standings2", standings2);
 		request.setAttribute("standings", standings);
 		
 		return "predict/standing";
@@ -521,9 +542,9 @@ public class PredictController {
 	
 	@RequestMapping(value = "/history", method = RequestMethod.GET)
 	public String performance1(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		LOGGER.info(" performance (user: " + (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER) + ")");
+		log.info(" performance (user: " + getUserDisplayName(request) + ")");
 		
-		String username = (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER);
+		String username = getAuthUsername(request);
 		//
 		List<UserPredictPerformanceDto> listFixture = predictService.performance(username);
 		request.setAttribute("listFixture", listFixture);
@@ -545,8 +566,8 @@ public class PredictController {
 	
 	@RequestMapping(value = "/history/{user}", method = RequestMethod.GET)
 	public String performance2(ModelMap modelMap, HttpServletRequest request, @PathVariable String user) throws Exception {
-		LOGGER.info(" performance (user: " + (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER) + ", view user: " + user + ")");
-		
+		log.info(" performance (user: " + getUserDisplayName(request) + ", view user: " + user + ")");
+
 		//
 		List<UserPredictPerformanceDto> listFixture = predictService.performance(user);
 		request.setAttribute("listFixture", listFixture);
@@ -564,19 +585,6 @@ public class PredictController {
 		request.setAttribute("week", (String) request.getServletContext().getAttribute("week"));
 		
 		return "predict/performance";
-	}
-	
-	@RequestMapping(value = "/gettime", method = RequestMethod.POST)
-	public @ResponseBody AjaxJsonResponse gettime(HttpServletRequest request) {
-		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
-		
-		Calendar c = Calendar.getInstance(Locale.ENGLISH);
-		c.setTimeZone(TimeZone.getTimeZone("Asia/Bangkok"));
-		
-		ajaxJsonResponse.setResult(Helper.date2TimeString(c.getTime()));
-
-		
-		return ajaxJsonResponse;
 	}
 	
 }

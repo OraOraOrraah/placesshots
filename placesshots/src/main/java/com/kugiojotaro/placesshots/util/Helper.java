@@ -8,15 +8,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 public class Helper {
-
-	private static final Logger LOGGER = Logger.getLogger(Helper.class);
 	
 	private static final ThreadLocal<DateFormat> SDF_DATETIME = new ThreadLocal<DateFormat>() {
 		@Override
@@ -61,7 +59,7 @@ public class Helper {
 				//SDF_DATE.get().setLenient(false);
 				date = SDF_DATE.get().parse(value);
 			} catch (ParseException ex) {
-				LOGGER.error(ex, ex);
+				log.error(ex, ex);
 			}
 		}
 		
@@ -77,7 +75,7 @@ public class Helper {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -92,7 +90,7 @@ public class Helper {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -107,7 +105,7 @@ public class Helper {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -195,7 +193,7 @@ public class Helper {
 	}
 	
 	public static boolean isLiveTime(Date d) {
-        return new DateTime(d).getMinuteOfDay() < (PlaceShotsConstant.END_LIVE_HOUR * 60);
+        return new DateTime(d).getMinuteOfDay() < (Consts.END_LIVE_HOUR * 60);
     }
 	
 	public static String formatFixtureDate(Date param) {
@@ -207,7 +205,7 @@ public class Helper {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;

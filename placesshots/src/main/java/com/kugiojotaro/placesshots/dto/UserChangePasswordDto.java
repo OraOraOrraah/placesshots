@@ -6,6 +6,15 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class UserChangePasswordDto implements Serializable {
 	
 	private static final long serialVersionUID = -5188062645965331298L;
@@ -21,30 +30,5 @@ public class UserChangePasswordDto implements Serializable {
 	
 	@NotBlank
 	private String passwordConfirm;
-
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public String getOldPassword() {
-		return oldPassword;
-	}
-	public void setOldPassword(String oldPassword) {
-		this.oldPassword = oldPassword;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public String getPasswordConfirm() {
-		return passwordConfirm;
-	}
-	public void setPasswordConfirm(String passwordConfirm) {
-		this.passwordConfirm = passwordConfirm;
-	}
 	
 }

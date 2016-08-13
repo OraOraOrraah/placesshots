@@ -27,8 +27,6 @@
 	<div id="90" style="display:none;">
 		<br/>
 		<span class="require">* คิดคะแนนจากผลการแข่งขัน 90 นาที</span>
-		<br/>
-		<span class="require">* ขยายเวลาปิดรับทายผลเป็น 22:00 น.</span>
 	</div>
 	<br/><br/>
 	<form id="formMain" name="formMain">
@@ -36,7 +34,6 @@
 			<c:forEach var="predictDisplayDto" items="${listPredictDisplayDto}" varStatus="idx">
 				<input type="hidden" name="week" value="${week}" />
 				<input type="hidden" id="fixtureId" name="fixtureId" value="${predictDisplayDto.fixtureId}" />
-				<input type="hidden" id="redCardFlag<c:out value="${idx.index}" />" name="redCardFlag" value="${predictDisplayDto.redCardFlag}" />
 				<tr>
 					<td align="right">
 					    <c:out value="${predictDisplayDto.homeTitle}" />
@@ -81,15 +78,9 @@
 					<td>
 						<c:out value="${predictDisplayDto.awayTitle}" />
 					</td>
-					<!--
-					<td>
-						<input type="checkbox" id="redCardFlagCheckBox<c:out value="${idx.index}" />" class="checkboxRedCardFlag" value="<c:out value="${idx.index}" />" />
-					</td>
-					-->
 				</tr>
 				<script type="text/javascript">
 					setPredictedScore(<c:out value="${idx.index}" />, <c:out value="${predictDisplayDto.homeScore}" />, <c:out value="${predictDisplayDto.awayScore}" />);
-					//setPredictedRedCardFlag(<c:out value="${idx.index}" />, <c:out value="${predictDisplayDto.redCardFlag}" />);
 				</script>
 			</c:forEach>
 			<tr>
@@ -113,12 +104,12 @@
 			$("#week").val("${week}");
 		});
 		
-		$("#week").live('change', function(){
+		$("#week").change(function(){
 			location = '${predictIndex}' + "/" + $("#week").val();
 		});
 		
 		$("#buttonSave").click(function(){
-			ajaxPost('${predictSave}', $('#formMain').serialize(), function(response) {
+			ajaxPost('${predictSave}', $('#formMain').serialize(), header, token, function(response) {
 				if (response.result == "success") {
 					$("#successMsgDiv").show();
 				}

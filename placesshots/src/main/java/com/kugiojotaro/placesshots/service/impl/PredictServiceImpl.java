@@ -6,18 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
-import com.kugiojotaro.placesshots.dao.FixtureDao;
-import com.kugiojotaro.placesshots.dao.PredictChampionDao;
-import com.kugiojotaro.placesshots.dao.PredictDao;
-import com.kugiojotaro.placesshots.dao.TeamDao;
-import com.kugiojotaro.placesshots.dao.UserDao;
 import com.kugiojotaro.placesshots.dto.PredictChampionDisplayDto;
 import com.kugiojotaro.placesshots.dto.PredictChampionDto;
 import com.kugiojotaro.placesshots.dto.PredictDto;
@@ -32,29 +25,36 @@ import com.kugiojotaro.placesshots.entity.Team;
 import com.kugiojotaro.placesshots.entity.User;
 import com.kugiojotaro.placesshots.mapper.PredictChampionMapper;
 import com.kugiojotaro.placesshots.mapper.PredictMapper;
+import com.kugiojotaro.placesshots.repository.FixtureRepository;
+import com.kugiojotaro.placesshots.repository.PredictChampionRepository;
+import com.kugiojotaro.placesshots.repository.PredictRepository;
+import com.kugiojotaro.placesshots.repository.TeamRepository;
+import com.kugiojotaro.placesshots.repository.UserRepository;
 import com.kugiojotaro.placesshots.service.PredictService;
+import com.kugiojotaro.placesshots.util.Consts;
 import com.kugiojotaro.placesshots.util.Helper;
 import com.kugiojotaro.placesshots.util.PredictHelper;
 
+import lombok.extern.log4j.Log4j;
+
 @Service
+@Log4j
 public class PredictServiceImpl implements PredictService {
 
-	private static final Logger LOGGER = Logger.getLogger(PredictServiceImpl.class);
-
 	@Autowired
-	private PredictDao predictDao;
+	private PredictRepository predictRepository;
 	
 	@Autowired
-	private PredictChampionDao predictChampionDao;
+	private PredictChampionRepository predictChampionRepository;
 	
 	@Autowired
-	private FixtureDao fixtureDao;
+	private FixtureRepository fixtureRepository;
 	
 	@Autowired
-	private UserDao userDao;
+	private UserRepository userRepository;
 	
 	@Autowired
-	private TeamDao teamDao;
+	private TeamRepository teamRepository;
 	
 	@Autowired
 	private PredictMapper predictMapper;
@@ -64,14 +64,14 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public Boolean create(PredictDto predictDto) {
-		LOGGER.debug(" create");
+		log.debug(" create");
 		
 		try {
 			Predict predict = predictMapper.toPersistenceBean(predictDto);
-			predictDao.save(predict);
+			predictRepository.save(predict);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -79,28 +79,28 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public Boolean predict(String user, Short week, List<PredictDto> listPredictDto) {
-		LOGGER.debug(" predict");
+		log.debug(" predict");
 		
 		try {
-			predictDao.delete(predictDao.findByUserAndWeek(user, week));
+			predictRepository.delete(predictRepository.findByUserAndWeek(user, week));
 			
 			//
 			for (PredictDto predictDto : listPredictDto) {
-				LOGGER.info(" fixtureId: " + predictDto.getFixtureId());
-				LOGGER.info(" homeScore: " + predictDto.getHomeScore());
-				LOGGER.info(" awayScore: " + predictDto.getAwayScore());
+				log.info(" fixtureId: " + predictDto.getFixtureId());
+				log.info(" homeScore: " + predictDto.getHomeScore());
+				log.info(" awayScore: " + predictDto.getAwayScore());
 				
 				Predict predict = predictMapper.toPersistenceBean(predictDto);
-				//predict.setUser(userDao.findOne(predictDto.getUser()));
+				//predict.setUser(userRepository.findOne(predictDto.getUser()));
 				predict.setFixture(Helper.string2Long(predictDto.getFixtureId()));
 				predict.setCreateDate(new Date());
-				predictDao.save(predict);
+				predictRepository.save(predict);
 				
-				LOGGER.info(" save: " + predict.getId());
+				log.info(" save: " + predict.getId());
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -109,14 +109,14 @@ public class PredictServiceImpl implements PredictService {
 	/*
 	@Override
 	public Boolean update(PredictDto predictDto) {
-		LOGGER.info(" update");
+		log.info(" update");
 		
 		return true;
 	}
 
 	@Override
 	public Boolean delete(Long id) {
-		LOGGER.info(" delete");
+		log.info(" delete");
 		
 		return true;
 	}
@@ -124,12 +124,12 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public List<PredictDto> findByUser(String username) {
-		LOGGER.debug(" findByUser");
+		log.debug(" findByUser");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
 		try {
-			List<Predict> listPredict = predictDao.findByUser(username);
+			List<Predict> listPredict = predictRepository.findByUser(username);
 			for (Predict predict : listPredict) {
 				PredictDto predictDto = new PredictDto();
 				predictDto = predictMapper.toDtoBean(predict);
@@ -139,7 +139,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -147,12 +147,12 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictDto> findByWeek(Short week) {
-		LOGGER.debug(" findByUsername");
+		log.debug(" findByUsername");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
 		try {
-			List<Predict> listPredict = predictDao.findByWeek(week);
+			List<Predict> listPredict = predictRepository.findByWeek(week);
 			for (Predict predict : listPredict) {
 				PredictDto predictDto = new PredictDto();
 				predictDto = predictMapper.toDtoBean(predict);
@@ -162,7 +162,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -170,12 +170,12 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictDto> findByUserAndWeek(String username, Short week) {
-		LOGGER.debug(" findByUserAndWeek");
+		log.debug(" findByUserAndWeek");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
 		try {
-			List<Predict> listPredict = predictDao.findByUserAndWeek(username, week);
+			List<Predict> listPredict = predictRepository.findByUserAndWeek(username, week);
 			for (Predict predict : listPredict) {
 				PredictDto predictDto = new PredictDto();
 				predictDto = predictMapper.toDtoBean(predict);
@@ -185,7 +185,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -193,17 +193,17 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public List<PredictResultDto> weeklyResult(Short week) {
-		LOGGER.debug(" weeklyResult: " + week);
+		log.debug(" weeklyResult: " + week);
 		
 		List<PredictResultDto> result = new ArrayList<PredictResultDto>();
 		
 		try {
 			//
-			List<Fixture> listFixture =  fixtureDao.findByWeek(week);
+			List<Fixture> listFixture =  fixtureRepository.findByWeek(week);
 			
 			//
 			Map<String, Map<Long, Predict>> mapUserPredict = new HashMap<String, Map<Long, Predict>>();
-			List<Predict> listPredict = predictDao.findByWeekOrderByUserAsc(week);
+			List<Predict> listPredict = predictRepository.findByWeekOrderByUserAsc(week);
 			for (Predict predict : listPredict) {
 				if (mapUserPredict.containsKey(predict.getUser()) == false) {
 					mapUserPredict.put(predict.getUser(), new HashMap<Long, Predict>());
@@ -228,7 +228,7 @@ public class PredictServiceImpl implements PredictService {
 			*/
 			
 			//
-			List<User> listUser = userDao.findAll();
+			List<User> listUser = userRepository.findAll();
 			for (User user : listUser) {
 				PredictResultDto predictResultDto = new PredictResultDto();
 				predictResultDto.setUsername(user.getUsername());
@@ -270,7 +270,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -278,17 +278,17 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictResultDto> result(String username) {
-		LOGGER.debug(" result: " + username);
+		log.debug(" result: " + username);
 		
 		List<PredictResultDto> result = new ArrayList<PredictResultDto>();
 		
 		try {
 			//
-			List<Fixture> listFixture =  fixtureDao.findByLeague(PlaceShotsConstant.EURO_2016);
+			List<Fixture> listFixture =  fixtureRepository.findByLeague(Consts.EURO_2016);
 			
 			//
 			Map<String, Map<Long, Predict>> mapUserPredict = new HashMap<String, Map<Long, Predict>>();
-			List<Predict> listPredict = predictDao.findByUser(username);
+			List<Predict> listPredict = predictRepository.findByUser(username);
 			for (Predict predict : listPredict) {
 				if (mapUserPredict.containsKey(predict.getUser()) == false) {
 					mapUserPredict.put(predict.getUser(), new HashMap<Long, Predict>());
@@ -307,6 +307,7 @@ public class PredictServiceImpl implements PredictService {
 			List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
 			for (Fixture fixture : listFixture) {
 				PredictResultDetailDto predictResultDetailDto = new PredictResultDetailDto();
+				predictResultDetailDto.setRound(fixture.getRound() + "");
 				predictResultDetailDto.setPredictHomeScore("");
 				predictResultDetailDto.setPredictAwayScore("");
 				predictResultDetailDto.setPoint(0);
@@ -324,7 +325,6 @@ public class PredictServiceImpl implements PredictService {
 						else {
 							predictResultDetailDto.setPoint(0);
 						}
-						
 					}
 				}
 				
@@ -335,18 +335,18 @@ public class PredictServiceImpl implements PredictService {
 			
 			result.add(predictResultDto);
 			
-			LOGGER.info(" result Success");
+			log.debug(" result Success");
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
 	}
 	
 	@Override
-	public List<UserPointDto> standing(Short week) {
-		LOGGER.debug(" standing - week: " + week);
+	public List<UserPointDto> standing(String round) {
+		log.debug(" standing (round: " + round + ")");
 		
 		List<UserPointDto> result = new ArrayList<UserPointDto>();
 		
@@ -356,48 +356,47 @@ public class PredictServiceImpl implements PredictService {
 			
 			//
 			Map<Long, Fixture> mapFixture = new HashMap<Long, Fixture>();
-			List<Fixture> listFixture =  fixtureDao.findAll();
+			List<Fixture> listFixture = round == null ? fixtureRepository.findAll() : fixtureRepository.findByRound(round);
 			for (Fixture fixture : listFixture) {
 				mapFixture.put(fixture.getId(), fixture);
 				
-				if (Helper.null2Blank(fixture.getRound() + "").equals("2")) {
+				if (Helper.null2Blank(fixture.getRound() + "").equals(Consts.ROUND_2)) {
 					int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
 					int awayScore = Helper.string2Integer(Helper.null2Zero(fixture.getAwayScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayPenaltyScore() + ""));
-					LOGGER.debug(" homescore: " + homeScore);
-					LOGGER.debug(" awayscore: " + awayScore);
+					log.debug(" homescore: " + homeScore);
+					log.debug(" awayscore: " + awayScore);
 					if (homeScore > awayScore) {
 						championId = fixture.getHome().getId();
 					}
 					if (awayScore > homeScore) {
 						championId = fixture.getAway().getId();
 					}
-					LOGGER.debug(" championId: " + championId);
+					log.debug(" championId: " + championId);
 				}
 			}
 			
 			//
 			Map<String, PredictChampion> mapPredictChampion = new HashMap<String, PredictChampion>();
-			List<PredictChampion> listPredictChampion = predictChampionDao.findAll();
+			List<PredictChampion> listPredictChampion = predictChampionRepository.findAll();
 			for (PredictChampion predictChampion : listPredictChampion) {
 				mapPredictChampion.put(predictChampion.getUser(), predictChampion);
 			}
 			
 			Map<String, Integer> mapUserPoint = new HashMap<String, Integer>();
 
-			List<Predict> listPredict = predictDao.findAll(new Sort(Direction.ASC, "user"));
+			List<Predict> listPredict = predictRepository.findAll(new Sort(Direction.ASC, "user"));
 			for (Predict predict : listPredict) {
 				if (mapUserPoint.containsKey(predict.getUser()) == false) {
 					mapUserPoint.put(predict.getUser(), 0);
 				}
 
 				Fixture fixture = mapFixture.get(predict.getFixture());
-				//Short point = (short) (mapUserPoint.get(predict.getUser()) + Helper.string2Short(Helper.nullObj2Zero(predict.getPoint())));
-				if (fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
+				if (fixture != null && fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
 					mapUserPoint.put(predict.getUser(), mapUserPoint.get(predict.getUser()) + PredictHelper.calculatePoint(fixture, predict) + 1);
 				}
 			}
 			
-			List<User> listUser = userDao.findAll();
+			List<User> listUser = userRepository.findAll();
 			for (User user : listUser) {
 				UserPointDto userPointDto = new UserPointDto();
 				userPointDto.setUsername(user.getUsername());
@@ -413,31 +412,28 @@ public class PredictServiceImpl implements PredictService {
 				}
 				
 				for (Predict predict : listPredict) {
-						if (predict.getUser().equals(user.getUsername())) {
-							
+					if (predict.getUser().equals(user.getUsername())) {
+						//
+						Fixture fixture = mapFixture.get(predict.getFixture());
+						if (fixture != null && fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
 							//
-							Fixture fixture = mapFixture.get(predict.getFixture());
-							
-							if (fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
-								//
-								userPointDto.setPredictCount(userPointDto.getPredictCount() + 1);
+							userPointDto.setPredictCount(userPointDto.getPredictCount() + 1);
 								
-								//
-								Short point = PredictHelper.calculatePoint(fixture, predict);
-								if (point > 0) {
-									if (point == 3) {
-										userPointDto.setCorrectResultAndScore(userPointDto.getCorrectResultAndScore() + 1);
-									}
-									else {
-										userPointDto.setCorrectResult(userPointDto.getCorrectResult() + 1);
-									}
+							//
+							Short point = PredictHelper.calculatePoint(fixture, predict);
+							if (point > 0) {
+								if (point == 3) {
+									userPointDto.setCorrectResultAndScore(userPointDto.getCorrectResultAndScore() + 1);
 								}
 								else {
-									userPointDto.setIncorrectResult(userPointDto.getIncorrectResult() + 1);
+									userPointDto.setCorrectResult(userPointDto.getCorrectResult() + 1);
 								}
 							}
+							else {
+								userPointDto.setIncorrectResult(userPointDto.getIncorrectResult() + 1);
+							}
 						}
-					//}
+					}
 				}
 				
 				//
@@ -446,13 +442,13 @@ public class PredictServiceImpl implements PredictService {
 					userPointDto.setExtraPoint(1);
 					if (championId > 0) {
 						if (p.getTeamId().intValue() == championId) {
-							if (p.getRound().shortValue() == 8) {
+							if (p.getRound().equals(Consts.ROUND_8)) {
 								userPointDto.setExtraPoint(16);
 							}
-							if (p.getRound().shortValue() == 4) {
+							if (p.getRound().equals(Consts.ROUND_4)) {
 								userPointDto.setExtraPoint(8);
 							}
-							if (p.getRound().shortValue() == 2) {
+							if (p.getRound().equals(Consts.ROUND_2)) {
 								userPointDto.setExtraPoint(4);
 							}
 						}
@@ -479,7 +475,6 @@ public class PredictServiceImpl implements PredictService {
 											break;
 										}
 									}
-									//break;
 								}
 							}
 						}
@@ -492,7 +487,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -500,14 +495,14 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public Boolean updatePoint(Short week) {
-		LOGGER.debug(" updatePoint (week: " + week + ")");
+		log.debug(" updatePoint (week: " + week + ")");
 		
 		Boolean result = false;
 		
 		try {
 			//
 			Map<Long, Fixture> mapFixture = new HashMap<Long, Fixture>();
-			List<Fixture> listFixture =  fixtureDao.findByWeek(week);
+			List<Fixture> listFixture =  fixtureRepository.findByWeek(week);
 			for (Fixture fixture : listFixture) {
 				mapFixture.put(fixture.getId(), fixture);
 			}
@@ -515,17 +510,17 @@ public class PredictServiceImpl implements PredictService {
 			//
 			List<Predict> listPredictUpdate = new ArrayList<Predict>();
 			
-			List<Predict> listPredict = predictDao.findByWeek(week);
+			List<Predict> listPredict = predictRepository.findByWeek(week);
 			for (Predict predict : listPredict) {
 				Fixture fixture = mapFixture.get(predict.getFixture());
 				
 				predict.setPoint(PredictHelper.calculatePoint(fixture, predict));
 			}
 			
-			predictDao.save(listPredictUpdate);
+			predictRepository.save(listPredictUpdate);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -533,28 +528,28 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public Boolean predictChampion(PredictChampionDto predictChampionDto) {
-		LOGGER.debug(" save predict champion");
+		log.debug(" save predict champion");
 		
 		Boolean result = false;
 		
 		try {
-			PredictChampion predictChampionToDelete = predictChampionDao.findByUser(predictChampionDto.getUser());
+			PredictChampion predictChampionToDelete = predictChampionRepository.findByUser(predictChampionDto.getUser());
 			if (predictChampionToDelete != null) {
-				predictChampionDao.delete(predictChampionToDelete);
+				predictChampionRepository.delete(predictChampionToDelete);
 			}
 	
 			if (predictChampionDto.getTeamId() != null && !predictChampionDto.getTeamId().equals("")) {
 				PredictChampion predictChampion = predictChampionMapper.toPersistenceBean(predictChampionDto);
 				predictChampion.setCreateDate(new Date());
-				predictChampionDao.save(predictChampion);
+				predictChampionRepository.save(predictChampion);
 					
-				LOGGER.info(" save success: " + predictChampion.getId());
+				log.info(" save success: " + predictChampion.getId());
 			}
 
 			result = true;
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -562,18 +557,18 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public PredictChampionDto findPredictChampionByUser(String username) {
-		LOGGER.debug(" findPredictChampionByUser");
+		log.debug(" findPredictChampionByUser");
 		
 		PredictChampionDto predictChampionDto = null;
 		
 		try {
-			PredictChampion predictChampion = predictChampionDao.findByUser(username);
+			PredictChampion predictChampion = predictChampionRepository.findByUser(username);
 			if (predictChampion != null) {
 				predictChampionDto = predictChampionMapper.toDtoBean(predictChampion);
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return predictChampionDto;
@@ -581,20 +576,20 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictChampionDisplayDto> resultPredictChampion() {
-		LOGGER.debug(" result predict champion");
+		log.debug(" result predict champion");
 		
 		List<PredictChampionDisplayDto> result = new ArrayList<PredictChampionDisplayDto>();
 		
 		try {
 			//
-			List<PredictChampion> listPredictChampion = predictChampionDao.findAll();
+			List<PredictChampion> listPredictChampion = predictChampionRepository.findAll();
 			Map<String, PredictChampion> mapPredictChampion = new HashMap<String, PredictChampion>();
 			for (PredictChampion prdictChampion : listPredictChampion) {
 				mapPredictChampion.put(prdictChampion.getUser(), prdictChampion);
 			}
 			
 			//
-			List<Team> listTeam = teamDao.findByLeague(PlaceShotsConstant.EURO_2016);
+			List<Team> listTeam = teamRepository.findByLeague(Consts.EURO_2016);
 			Map<Integer, Team> mapTeam = new HashMap<Integer, Team>();
 			for (Team team : listTeam) {
 				mapTeam.put(team.getId(), team);
@@ -602,25 +597,25 @@ public class PredictServiceImpl implements PredictService {
 			
 			//
 			int championId = 0;
-			List<Fixture> listFixture =  fixtureDao.findAll();
+			List<Fixture> listFixture =  fixtureRepository.findAll();
 			for (Fixture fixture : listFixture) {
 				if (Helper.null2Blank(fixture.getRound() + "").equals("2")) {
 					int homeScore = Helper.string2Integer(Helper.null2Zero(fixture.getHomeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomeExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getHomePenaltyScore() + ""));
 					int awayScore = Helper.string2Integer(Helper.null2Zero(fixture.getAwayScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayExtraTimeScore() + "")) + Helper.string2Integer(Helper.null2Zero(fixture.getAwayPenaltyScore() + ""));
-					LOGGER.debug(" homescore: " + homeScore);
-					LOGGER.debug(" awayscore: " + awayScore);
+					log.debug(" homescore: " + homeScore);
+					log.debug(" awayscore: " + awayScore);
 					if (homeScore > awayScore) {
 						championId = fixture.getHome().getId();
 					}
 					if (awayScore > homeScore) {
 						championId = fixture.getAway().getId();
 					}
-					LOGGER.debug(" championId: " + championId);
+					log.debug(" championId: " + championId);
 				}
 			}
 			
 			//
-			List<User> listUser = userDao.findAll();
+			List<User> listUser = userRepository.findAll();
 			for (User user : listUser) {
 				PredictChampionDisplayDto predictChampionDisplayDto = new PredictChampionDisplayDto();
 				predictChampionDisplayDto.setUser(user.getUsername());
@@ -635,13 +630,13 @@ public class PredictServiceImpl implements PredictService {
 					
 					if (championId > 0) {
 						if (predictChampion.getTeamId().intValue() == championId) {
-							if (predictChampion.getRound().shortValue() == 8) {
+							if (predictChampion.getRound().equals(Consts.ROUND_8)) {
 								predictChampionDisplayDto.setPoint("16");
 							}
-							else if (predictChampion.getRound().shortValue() == 4) {
+							else if (predictChampion.getRound().equals(Consts.ROUND_4)) {
 								predictChampionDisplayDto.setPoint("8");
 							}
-							else if (predictChampion.getRound().shortValue() == 2) {
+							else if (predictChampion.getRound().equals(Consts.ROUND_2)) {
 								predictChampionDisplayDto.setPoint("4");
 							}
 						}
@@ -680,7 +675,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -688,13 +683,13 @@ public class PredictServiceImpl implements PredictService {
 
 	@Override
 	public List<UserPredictPerformanceDto> performance(String username) {
-		LOGGER.debug(" performance: " + username);
+		log.debug(" performance: " + username);
 		
 		List<UserPredictPerformanceDto> listUserPredictPerformanceDto = new ArrayList<UserPredictPerformanceDto>();
 		
 		try {
 			//
-			List<Predict> listPredict = predictDao.findByUser(username);
+			List<Predict> listPredict = predictRepository.findByUser(username);
 			Map<Long, Predict> mapPredict = new HashMap<Long, Predict>();
 			for (Predict predict : listPredict) {
 				mapPredict.put(predict.getFixture(), predict);
@@ -707,7 +702,7 @@ public class PredictServiceImpl implements PredictService {
 			int rec = 0;
 			Short w = 0;
 			Date day = null;
-			List<Fixture> listFixture =  fixtureDao.findAll();
+			List<Fixture> listFixture =  fixtureRepository.findAll();
 			for (Fixture fixture : listFixture) {
 				rec++;
 				
@@ -762,7 +757,7 @@ public class PredictServiceImpl implements PredictService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return listUserPredictPerformanceDto;		

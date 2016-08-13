@@ -1,15 +1,12 @@
 
 package com.kugiojotaro.placesshots.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kugiojotaro.placesshots.dto.UserChangePasswordDto;
 import com.kugiojotaro.placesshots.dto.UserDto;
-import com.kugiojotaro.placesshots.dto.UserItemDto;
 
 public interface UserService {
 
@@ -30,8 +27,6 @@ public interface UserService {
 	public UserDto findByUsernameAndPassword(String username, String password);
 	
 	public Page<UserDto> findAll(Pageable pageable);
-	
-	public List<UserItemDto> selectUserItem(String username);
 	
 	@Transactional
 	public Boolean changepassword(UserChangePasswordDto userChangePasswordDto);

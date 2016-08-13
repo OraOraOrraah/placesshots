@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.context.ServletContextAware;
 
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
+import com.kugiojotaro.placesshots.util.Consts;
 import com.kugiojotaro.placesshots.util.Helper;
 
 @Configuration
@@ -68,9 +68,9 @@ public class ScheduledTasks implements ServletContextAware {
 
 		        stmt.executeUpdate("UPDATE config SET week=" + week + ", live='1'");
 		      
-		        servletContext.setAttribute(PlaceShotsConstant.WEEK, (week + ""));
+		        servletContext.setAttribute(Consts.WEEK, (week + ""));
 		        
-		        servletContext.setAttribute(PlaceShotsConstant.LIVE, Boolean.TRUE);
+		        servletContext.setAttribute(Consts.LIVE, Boolean.TRUE);
 		        
 		        LOGGER.info(" to week:" + week);
 			}
@@ -125,7 +125,7 @@ public class ScheduledTasks implements ServletContextAware {
 		Statement stmt = null;
 		
     	try {
-    		if ((boolean) servletContext.getAttribute(PlaceShotsConstant.LIVE)) {
+    		if ((boolean) servletContext.getAttribute(Consts.LIVE)) {
     			Properties properties = new Properties();
     			properties.load(servletContext.getResourceAsStream("/WEB-INF/properties/jdbc.properties"));
     			
@@ -135,7 +135,7 @@ public class ScheduledTasks implements ServletContextAware {
     	        stmt = conn.createStatement();
     	        stmt.executeUpdate("UPDATE config SET live='0'");
     	        
-    			servletContext.setAttribute(PlaceShotsConstant.LIVE, Boolean.FALSE);
+    			servletContext.setAttribute(Consts.LIVE, Boolean.FALSE);
     		}
     	}
     	catch (Exception e) {

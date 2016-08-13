@@ -18,8 +18,6 @@
 			</c:forEach>
 		</select>
 	</div>
-<!-- 	<br/><br/> -->
-<!-- 	<span class="require">* นับคะแนนเฉพาะผลการแข่งขันใน 90 นาที</span> -->
 	<div align="center">
 	<br/><br/>
 	<table cellspacing="0" cellpadding="0"  border="0">

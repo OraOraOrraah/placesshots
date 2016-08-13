@@ -2,6 +2,17 @@ package com.kugiojotaro.placesshots.dto;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@ToString(of={"id", "shortTitle"})
 public class TeamDto implements Serializable {
 
 	private static final long serialVersionUID = 875368361860214773L;
@@ -10,30 +21,5 @@ public class TeamDto implements Serializable {
 	private String title;
 	private String shortTitle;
 	private String leagueId;
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public String getShortTitle() {
-		return shortTitle;
-	}
-	public void setShortTitle(String shortTitle) {
-		this.shortTitle = shortTitle;
-	}
-	public String getLeagueId() {
-		return leagueId;
-	}
-	public void setLeagueId(String leagueId) {
-		this.leagueId = leagueId;
-	}
 
 }

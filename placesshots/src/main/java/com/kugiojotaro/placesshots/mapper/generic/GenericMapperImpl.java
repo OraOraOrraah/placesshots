@@ -10,14 +10,14 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
-import org.apache.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-public class GenericMapperImpl<T extends Serializable, R extends Serializable> implements GenericMapper<T, R> {
+import lombok.extern.log4j.Log4j;
 
-	private static final Logger LOGGER = Logger.getLogger(GenericMapperImpl.class);
+@Log4j
+public class GenericMapperImpl<T extends Serializable, R extends Serializable> implements GenericMapper<T, R> {
 	
 	@Override
 	public T toDtoBean(R r) {
@@ -31,7 +31,7 @@ public class GenericMapperImpl<T extends Serializable, R extends Serializable> i
 			ConvertUtils.register(new DateConverter(null), Date.class);
 			BeanUtils.copyProperties(dto, r);
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-			LOGGER.error(e, e);
+			log.error(e, e);
 		}
 
 		return dto;
@@ -45,14 +45,7 @@ public class GenericMapperImpl<T extends Serializable, R extends Serializable> i
 		}
 		return list;
 	}
-
-	@Override
-	public Page<T> toDtoBean(Page<? extends R> r, Pageable pageable) {
-		Page<T> pageDto = new PageImpl<T>(toDtoBean(r.getContent()), pageable, r.getTotalElements());
-		return pageDto;
-
-	}
-
+	
 	@Override
 	public R toPersistenceBean(T dto) {
 		return toPersistenceBean(dto, null);
@@ -64,6 +57,7 @@ public class GenericMapperImpl<T extends Serializable, R extends Serializable> i
 		for (T item : t) {
 			list.add(toPersistenceBean(item));
 		}
+		
 		return list;
 	}
 
@@ -83,11 +77,17 @@ public class GenericMapperImpl<T extends Serializable, R extends Serializable> i
 				ConvertUtils.register(new DateConverter(null), Date.class);
 				BeanUtils.copyProperties(persist, dto);
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-				LOGGER.error(e, e);
+				log.error(e, e);
 			}
 		}
 
 		return persist;
 	}
 
+	@Override
+	public Page<T> toDtoBean(Page<? extends R> r, Pageable pageable) {
+		Page<T> pageDto = new PageImpl<T>(toDtoBean(r.getContent()), pageable, r.getTotalElements());
+		return pageDto;
+	}
+	
 }

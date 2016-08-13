@@ -3,9 +3,12 @@ package com.kugiojotaro.placesshots.service;
 
 import java.util.List;
 
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kugiojotaro.placesshots.dto.FixtureDto;
+import com.kugiojotaro.placesshots.entity.Fixture;
 
 public interface FixtureService {
 
@@ -27,6 +30,8 @@ public interface FixtureService {
 	
 	List<FixtureDto> findByLeague(Short leagueId);
 	
-	List<FixtureDto> findByRound(Short round);
+	List<FixtureDto> findByRound(String round);
+	
+	public DataTablesOutput<Fixture> getFixture(DataTablesInput input);
 
 }

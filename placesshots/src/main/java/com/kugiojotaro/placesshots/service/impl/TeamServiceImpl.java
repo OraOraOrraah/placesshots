@@ -3,43 +3,39 @@ package com.kugiojotaro.placesshots.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.kugiojotaro.placesshots.dao.LeagueDao;
-import com.kugiojotaro.placesshots.dao.TeamDao;
 import com.kugiojotaro.placesshots.dto.TeamDto;
 import com.kugiojotaro.placesshots.entity.Team;
-import com.kugiojotaro.placesshots.mapper.TeamMapper;
+import com.kugiojotaro.placesshots.mapper.BeanMapper;
+import com.kugiojotaro.placesshots.repository.TeamRepository;
 import com.kugiojotaro.placesshots.service.TeamService;
 import com.kugiojotaro.placesshots.util.Helper;
 
+import lombok.extern.log4j.Log4j;
+
 @Service
+@Log4j
 public class TeamServiceImpl implements TeamService {
 
-	private static final Logger LOGGER = Logger.getLogger(TeamServiceImpl.class);
-
 	@Autowired
-	private TeamDao teamDao;
+	private TeamRepository teamRepository;
 	
 	@Autowired
-	private LeagueDao leagueDao;
-	
-	@Autowired
-	private TeamMapper teamMapper;
+	private BeanMapper<TeamDto, Team> beanMapper;
 	
 	@Override
 	public Boolean create(TeamDto teamDto) {
-		LOGGER.debug(" create");
+		log.info(" create");
 		
 		try {
-			Team team = teamMapper.toPersistenceBean(teamDto);
+			Team team = beanMapper.toPersistenceBean(teamDto);
 			team.setLeague(Helper.string2Short(teamDto.getLeagueId()));
-			teamDao.save(team);
+			teamRepository.save(team);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -47,16 +43,16 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public Boolean update(TeamDto teamDto) {
-		LOGGER.debug(" update");
+		log.debug(" update");
 		
 		try {
-			Team team = teamDao.findOne(Helper.string2Integer(teamDto.getId()));
-			team = teamMapper.toPersistenceBean(teamDto);
+			Team team = teamRepository.findOne(Helper.string2Integer(teamDto.getId()));
+			team = beanMapper.toPersistenceBean(teamDto);
 			team.setLeague(Helper.string2Short(teamDto.getLeagueId()));
-			teamDao.save(team);
+			teamRepository.save(team);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -64,15 +60,15 @@ public class TeamServiceImpl implements TeamService {
 
 	@Override
 	public TeamDto selectById(Integer id) {
-		LOGGER.debug(" selectById");
+		log.debug(" selectById");
 		
 		TeamDto result = null;
 		
 		try {
-			result = teamMapper.toDtoBean(teamDao.findOne(id));
+			result = beanMapper.toDtoBean(teamRepository.findOne(id));
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -80,23 +76,23 @@ public class TeamServiceImpl implements TeamService {
 	
 	@Override
 	public Boolean delete(Integer id) {
-		LOGGER.debug(" delete");
+		log.debug(" delete");
 		
 		return true;
 	}
 
 	@Override
 	public List<TeamDto> findByLeague(Short leagueId) {
-		LOGGER.debug(" findByLeague");
+		log.debug(" findByLeague");
 		
 		List<TeamDto> result = new ArrayList<TeamDto>();
 		
 		try {
-			List<Team> listTeam = teamDao.findByLeague(leagueId);
-			result = teamMapper.toDtoBean(listTeam);
+			List<Team> listTeam = teamRepository.findByLeague(leagueId);
+			result = beanMapper.toDtoBean(listTeam);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;

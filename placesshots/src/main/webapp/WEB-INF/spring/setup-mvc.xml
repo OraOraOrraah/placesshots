@@ -11,9 +11,9 @@
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
-	<bean id="placesshotsSource" class="org.springframework.core.io.ClassPathResource">
-		<constructor-arg index="0" value="classpath:placesshots.txt" />
-	</bean>
+<!-- 	<bean id="placesshotsSource" class="org.springframework.core.io.ClassPathResource"> -->
+<!-- 		<constructor-arg index="0" value="classpath:placesshots.txt" /> -->
+<!-- 	</bean> -->
 	
 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 	    <property name="basename" value="/WEB-INF/message/message" />
@@ -29,12 +29,12 @@
 	
 	<context:component-scan base-package="com.kugiojotaro.placesshots.authen" />
 	<context:component-scan base-package="com.kugiojotaro.placesshots.controller" />
-	<context:component-scan base-package="com.kugiojotaro.placesshots.dao.hibernate" />
+	<context:component-scan base-package="com.kugiojotaro.placesshots.repository.impl" />
 	<context:component-scan base-package="com.kugiojotaro.placesshots.service.impl" />
 	<context:component-scan base-package="com.kugiojotaro.placesshots.mapper" />
 	<context:component-scan base-package="com.kugiojotaro.placesshots.job" />
 	
-	<context:property-placeholder location="/WEB-INF/properties/jdbc.properties" />
+<!-- 	<context:property-placeholder location="/WEB-INF/properties/jdbc.properties" /> -->
 	
 	<mvc:resources location="/resources/img/" mapping="/img/**" />
 	<mvc:resources location="/resources/css/" mapping="/css/**" />
@@ -48,8 +48,20 @@
 	<task:annotation-driven />
 	-->
 	
-	<bean id="jdbcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="location" value="WEB-INF/properties/jdbc.properties" />
-	</bean>
+<!-- 	<bean id="jdbcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"> -->
+<!-- 		<property name="location" value="WEB-INF/properties/jdbc.properties" /> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="socialProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"> -->
+<!-- 		<property name="location" value="WEB-INF/properties/social.properties" /> -->
+<!-- 	</bean> -->
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>WEB-INF/properties/jdbc.properties</value>
+                <value>WEB-INF/properties/social.properties</value>
+            </list>
+        </property>
+    </bean>
 	
 </beans>

@@ -12,12 +12,12 @@ public interface GenericMapper<T extends Serializable, R extends Serializable> {
 	
 	List<T> toDtoBean(List<? extends R> r);
 	
-	Page<T> toDtoBean(Page<? extends R> r, Pageable pageable);
-	
 	R toPersistenceBean(T t);
 	
 	R toPersistenceBean(T t, R r);
 	
 	List<R> toPersistenceBean(List<? extends T> t);
+	
+	Page<T> toDtoBean(Page<? extends R> r, Pageable pageable);
 	
 }

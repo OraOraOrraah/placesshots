@@ -84,7 +84,7 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			window.setTimeout(function loadExtraResult() {
-		    	ajaxGet('${predictExtraResult}', null, function(response) {
+		    	ajaxGet('${predictExtraResult}', null, header, token, function(response) {
 					$("#extraResult").show();
 					$("#extraResult").html(response);
 				}, true);
@@ -106,10 +106,10 @@
 					//$("#successMsgDiv").hide();
 					$("#formSave").hide();
 					$("#extraResult").hide();
-					ajaxPost('${predictExtraSave}', $('#formPredictChampion').serialize(), function(response) {
+					ajaxPost('${predictExtraSave}', $('#formPredictChampion').serialize(), header, token, function(response) {
 						if (response.result == "success") {
 							window.setTimeout(function loadExtraResult() {
-						    	ajaxGet('${predictExtraResult}', null, function(response) {
+						    	ajaxGet('${predictExtraResult}', null, header, token, function(response) {
 									$("#extraResult").show();
 									$("#extraResult").html(response);
 									$("#successMsgDiv").hide();

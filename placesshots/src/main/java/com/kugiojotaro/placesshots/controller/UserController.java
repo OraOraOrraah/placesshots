@@ -8,8 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -17,32 +15,26 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.kugiojotaro.placesshots.util.Constant;
-import com.kugiojotaro.placesshots.util.Helper;
-import com.kugiojotaro.placesshots.constant.PlaceShotsConstant;
+import com.kugiojotaro.placesshots.util.Consts;
+
+import lombok.extern.log4j.Log4j;
+
 import com.kugiojotaro.placesshots.dto.AjaxJsonResponse;
-import com.kugiojotaro.placesshots.dto.TeamDto;
 import com.kugiojotaro.placesshots.dto.UserChangePasswordDto;
 import com.kugiojotaro.placesshots.dto.UserDto;
-import com.kugiojotaro.placesshots.service.TeamService;
 import com.kugiojotaro.placesshots.service.UserService;
 
 @Controller
 @RequestMapping(value="/")
-public class UserController {
-	
-	private static final Logger LOGGER = Logger.getLogger(UserController.class);
+@Log4j
+public class UserController extends BaseController {
 
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private TeamService teamService;
 	
 	@Autowired
 	private MessageSource messageSource;
@@ -51,16 +43,7 @@ public class UserController {
 	
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String registerGet(ModelMap modelMap, HttpServletRequest request) {
-		radioItem = new LinkedHashMap<String,String>();
-		radioItem.put("", "-");
-		
-		List<TeamDto> listTeamDto = teamService.findByLeague(PlaceShotsConstant.EURO_2016);
-		for (TeamDto teamDto : listTeamDto) {
-			radioItem.put(Helper.null2Blank(teamDto.getShortTitle()).toLowerCase(), "<img src= " + request.getContextPath() + PlaceShotsConstant.FLAG_PATH.replace("x", teamDto.getShortTitle().toLowerCase()) + " width=32 height=16 />");
-		}
-		
-		request.setAttribute("radioItem", radioItem);
-		request.setAttribute("mode", Constant.MODE_ADD);
+		request.setAttribute("mode", Consts.MODE_ADD);
 		request.setAttribute("userDto", new UserDto());
 		
 		return "user/register";
@@ -80,7 +63,7 @@ public class UserController {
 	            }
 				
 				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				
 				return ajaxJsonResponse;
 			}
@@ -88,7 +71,7 @@ public class UserController {
 			if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
 				errorsMap.put("passwordConfirm", "password confirm not match!");
 				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				
 				return ajaxJsonResponse;
 			}
@@ -97,15 +80,15 @@ public class UserController {
 			
 //			Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute("mapUserIcon");
 //			if (mapUserIcon != null) {
-//				if (mapUserIcon.get((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER)) == null) {
+//				if (mapUserIcon.get((String) request.getSession().getAttribute(PlaceShotsConsts.SESSION_USER)) == null) {
 //					mapUserIcon.put(userDto.getUsername(), userDto.getIcon());
 //				} 
 //			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -131,7 +114,7 @@ public class UserController {
 	            }
 				
 				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				
 				return ajaxJsonResponse;
 			}
@@ -139,24 +122,24 @@ public class UserController {
 			if (!userChangePasswordDto.getPassword().equals(userChangePasswordDto.getPasswordConfirm())) {
 				errorsMap.put("passwordConfirm", "password confirm not match!");
 				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				
 				return ajaxJsonResponse;
 			}
 			
-			userChangePasswordDto.setUsername((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			userChangePasswordDto.setUsername(getAuthUsername(request));
 			Boolean result = userService.changepassword(userChangePasswordDto);
 			if (result) {
-				ajaxJsonResponse.setResult(Constant.RESULT_SUCCESS);
+				ajaxJsonResponse.setResult(Consts.RESULT_SUCCESS);
 			}
 			else {
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -187,7 +170,7 @@ public class UserController {
 	            }
 				
 				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				
 				return ajaxJsonResponse;
 			}
@@ -195,7 +178,7 @@ public class UserController {
 			if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
 				errorsMap.put("passwordConfirm", "password confirm not match!");
 				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 				
 				return ajaxJsonResponse;
 			}
@@ -203,9 +186,9 @@ public class UserController {
 			userService.update(userDto);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -218,7 +201,7 @@ public class UserController {
 		try {
 			UserDto userDto = userService.findByUsername(request.getParameter("username"));
 			if (userDto != null) {
-				LOGGER.debug(" " + userDto.getUsername());
+				log.debug(" " + userDto.getUsername());
 			}
 			
 			if (userDto != null && !userDto.getUsername().equals("") && userDto.getUsername().equals(request.getParameter("username"))) {
@@ -229,9 +212,9 @@ public class UserController {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -242,7 +225,7 @@ public class UserController {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 
 		try {
-			UserDto userDto = userService.findByUsernameAndPassword((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER), request.getParameter("oldPassword"));
+			UserDto userDto = userService.findByUsernameAndPassword(getAuthUsername(request), request.getParameter("oldPassword"));
 			if (userDto != null) {
 				ajaxJsonResponse.setReturnValue("Y");
 			}
@@ -251,9 +234,9 @@ public class UserController {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
@@ -261,16 +244,7 @@ public class UserController {
 	
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
 	public String profile(ModelMap modelMap, HttpServletRequest request) {
-		
-		radioItem = new LinkedHashMap<String,String>();
-		radioItem.put("", "-");
-		
-		List<TeamDto> listTeamDto = teamService.findByLeague(PlaceShotsConstant.EURO_2016);
-		for (TeamDto teamDto : listTeamDto) {
-			radioItem.put(Helper.null2Blank(teamDto.getShortTitle()).toLowerCase(), "<img src= " + request.getContextPath() + PlaceShotsConstant.FLAG_PATH.replace("x", teamDto.getShortTitle().toLowerCase()) + " width=32 height=16 />");
-		}
-		
-		UserDto userDto = userService.findByUsername((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+		UserDto userDto = userService.findByUsername(getAuthUsername(request));
 		
 		request.setAttribute("radioItem", radioItem);
 		request.setAttribute("userDto", userDto);
@@ -278,71 +252,21 @@ public class UserController {
 		return "user/profile";
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/profile/save", method = RequestMethod.POST)
 	public @ResponseBody AjaxJsonResponse profileSave(@ModelAttribute("userDto") UserDto userDto, BindingResult bindingResult, ModelMap modelMap, HttpServletRequest request) {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 
 		try {
-			userDto.setUsername((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER));
+			userDto.setUsername(getAuthUsername(request));
 			userService.updateProfile(userDto);
-			
-			Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute("mapUserIcon");
-			if (mapUserIcon != null) {
-				if (userDto.getIcon() == null || (userDto.getIcon() != null && userDto.getIcon().equals(""))) {
-					if (mapUserIcon.get((String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER)) != null) {
-						mapUserIcon.remove(userDto.getUsername());
-					}
-				}
-				else {
-					mapUserIcon.put(userDto.getUsername(), userDto.getIcon());
-					
-					//request.getSession().setAttribute(PlaceShotsConstant.SESSION_USER_ICON, userDto.getIcon());
-				}
-			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
+			log.error(ex.getMessage());
 		
-			ajaxJsonResponse.setResult(Constant.RESULT_FAIL);
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
 		}
 		
 		return ajaxJsonResponse;
-	}
-	
-	@RequestMapping(value = "/user/icon", method = RequestMethod.POST)
-	public @ResponseBody String userIcon(HttpServletRequest request) {
-		String icon = "";
-
-		try {
-			@SuppressWarnings("unchecked")
-			Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute("mapUserIcon");
-			if (mapUserIcon != null) {
-				if (!Helper.null2Blank(mapUserIcon.get(request.getParameter("username"))).equals("")) {
-					icon = request.getContextPath() + PlaceShotsConstant.FLAG_PATH.replace("x", mapUserIcon.get(request.getParameter("username")));
-				}
-			}
-		}
-		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
-		}
-		
-		return icon;
-	}
-	
-	@RequestMapping(value = "/user/logined/{uuid}", method = RequestMethod.POST)
-	public @ResponseBody String userLogined(HttpServletRequest request, @PathVariable String uuid) {
-		//LOGGER.info(" uuid: " + uuid);
-		String result = "";
-
-		try {
-			result = (String) request.getSession().getAttribute(PlaceShotsConstant.SESSION_USER);
-		}
-		catch (Exception ex) {
-			LOGGER.error(ex.getMessage());
-		}
-		
-		return result;
 	}
 	
 }

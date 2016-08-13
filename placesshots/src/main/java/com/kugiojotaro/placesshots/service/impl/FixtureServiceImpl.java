@@ -4,48 +4,54 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 
-import com.kugiojotaro.placesshots.dao.FixtureDao;
-import com.kugiojotaro.placesshots.dao.TeamDao;
 import com.kugiojotaro.placesshots.dto.FixtureDto;
 import com.kugiojotaro.placesshots.entity.Fixture;
 import com.kugiojotaro.placesshots.mapper.FixtureMapper;
+import com.kugiojotaro.placesshots.repository.FixtureDataTablesRepository;
+import com.kugiojotaro.placesshots.repository.FixtureRepository;
+import com.kugiojotaro.placesshots.repository.TeamRepository;
 import com.kugiojotaro.placesshots.service.FixtureService;
 import com.kugiojotaro.placesshots.util.Helper;
 
+import lombok.extern.log4j.Log4j;
+
 @Service
+@Log4j
 public class FixtureServiceImpl implements FixtureService {
-
-	private static final Logger LOGGER = Logger.getLogger(FixtureServiceImpl.class);
-
-	@Autowired
-	private FixtureDao fixtureDao;
 	
 	@Autowired
-	private TeamDao teamDao;
+	private FixtureRepository fixtureRepository;
+	
+	@Autowired
+	private FixtureDataTablesRepository fixtureDataTablesRepository;
+	
+	@Autowired
+	private TeamRepository teamRtepository;
 	
 	@Autowired
 	private FixtureMapper fixtureMapper;
 	
 	@Override
 	public Boolean create(FixtureDto fixtureDto) {
-		LOGGER.debug(" create");
+		log.debug(" create");
 		
 		try {
 			Fixture fixture = fixtureMapper.toPersistenceBean(fixtureDto);
 			fixture.setLeague(Helper.string2Short(fixtureDto.getLeagueId()));
-			fixture.setHome(teamDao.findOne(Helper.string2Integer(fixtureDto.getHomeId())));
-			fixture.setAway(teamDao.findOne(Helper.string2Integer(fixtureDto.getAwayId())));
+			fixture.setHome(teamRtepository.findOne(Helper.string2Integer(fixtureDto.getHomeId())));
+			fixture.setAway(teamRtepository.findOne(Helper.string2Integer(fixtureDto.getAwayId())));
 			fixture.setFixtureDate(Helper.string2Date(fixtureDto.getFixtureDate()));
 			fixture.setCreateDate(new Date());
 			
-			fixtureDao.save(fixture);
+			fixtureRepository.save(fixture);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -53,20 +59,20 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public Boolean update(FixtureDto fixtureDto) {
-		LOGGER.debug(" update");
+		log.debug(" update");
 		
 		try {
-			Fixture fixture = fixtureDao.findOne(Helper.string2Long(fixtureDto.getId()));
+			Fixture fixture = fixtureRepository.findOne(Helper.string2Long(fixtureDto.getId()));
 			fixture.setLeague(Helper.string2Short(fixtureDto.getLeagueId()));
-			fixture.setHome(teamDao.findOne(Helper.string2Integer(fixtureDto.getHomeId())));
-			fixture.setAway(teamDao.findOne(Helper.string2Integer(fixtureDto.getAwayId())));
+			fixture.setHome(teamRtepository.findOne(Helper.string2Integer(fixtureDto.getHomeId())));
+			fixture.setAway(teamRtepository.findOne(Helper.string2Integer(fixtureDto.getAwayId())));
 			fixture.setFixtureDate(Helper.string2Date(fixtureDto.getFixtureDate()));
 			fixture.setUpdateDate(new Date());
 			
-			fixtureDao.save(fixture);
+			fixtureRepository.save(fixture);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -74,10 +80,10 @@ public class FixtureServiceImpl implements FixtureService {
 	
 	@Override
 	public Boolean updateScore(FixtureDto fixtureDto) {
-		LOGGER.debug(" updateScore");
+		log.debug(" updateScore");
 		
 		try {
-			Fixture fixture = fixtureDao.findOne(Helper.string2Long(fixtureDto.getId()));
+			Fixture fixture = fixtureRepository.findOne(Helper.string2Long(fixtureDto.getId()));
 			fixture.setHomeScore(Helper.string2Short(fixtureDto.getHomeScore()));
 			fixture.setAwayScore(Helper.string2Short(fixtureDto.getAwayScore()));
 			fixture.setHomeExtraTimeScore(fixtureDto.getHomeExtraTimeScore() == "" ? null : Helper.string2Short(fixtureDto.getHomeExtraTimeScore()));
@@ -87,10 +93,10 @@ public class FixtureServiceImpl implements FixtureService {
 			fixture.setUpdateBy(fixtureDto.getUpdateBy());
 			fixture.setUpdateDate(new Date());
 			
-			fixtureDao.save(fixture);
+			fixtureRepository.save(fixture);
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return true;
@@ -98,22 +104,22 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public Boolean delete(Short id) {
-		LOGGER.debug(" delete");
+		log.debug(" delete");
 		
 		return true;
 	}
 
 	@Override
 	public FixtureDto selectById(Long id) {
-		LOGGER.debug(" selectById");
+		log.debug(" selectById");
 		
 		FixtureDto result = new FixtureDto();
 		
 		try {
-			result = fixtureMapper.toDtoBean(fixtureDao.findOne(id));
+			result = fixtureMapper.toDtoBean(fixtureRepository.findOne(id));
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -121,12 +127,12 @@ public class FixtureServiceImpl implements FixtureService {
 	
 	@Override
 	public List<FixtureDto> findByLeagueAndWeek(Short leagueId, Short week) {
-		LOGGER.debug(" findByLeagueAndWeek");
+		log.debug(" findByLeagueAndWeek");
 		
 		List<FixtureDto> result = new ArrayList<FixtureDto>();
 		
 		try {
-			List<Fixture> listFixture = fixtureDao.findByLeagueAndWeek(leagueId, week);
+			List<Fixture> listFixture = fixtureRepository.findByLeagueAndWeek(leagueId, week);
 			//result = fixtureMapper.toDtoBean(listFixture);
 			
 			for (Fixture fixture : listFixture) {
@@ -143,7 +149,7 @@ public class FixtureServiceImpl implements FixtureService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
@@ -151,12 +157,12 @@ public class FixtureServiceImpl implements FixtureService {
 
 	@Override
 	public List<FixtureDto> findByLeague(Short leagueId) {
-		LOGGER.debug(" findByLeagueAndWeek");
+		log.debug(" findByLeagueAndWeek");
 		
 		List<FixtureDto> result = new ArrayList<FixtureDto>();
 		
 		try {
-			List<Fixture> listFixture = fixtureDao.findByLeague(leagueId);
+			List<Fixture> listFixture = fixtureRepository.findByLeague(leagueId);
 			//result = fixtureMapper.toDtoBean(listFixture);
 			
 			for (Fixture fixture : listFixture) {
@@ -172,20 +178,20 @@ public class FixtureServiceImpl implements FixtureService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
 	}
 
 	@Override
-	public List<FixtureDto> findByRound(Short round) {
-		LOGGER.debug(" findByRound: " + round);
+	public List<FixtureDto> findByRound(String round) {
+		log.debug(" findByRound: " + round);
 		
 		List<FixtureDto> result = new ArrayList<FixtureDto>();
 		
 		try {
-			List<Fixture> listFixture = fixtureDao.findByRound(round);
+			List<Fixture> listFixture = fixtureRepository.findByRound(round);
 			//result = fixtureMapper.toDtoBean(listFixture);
 			
 			for (Fixture fixture : listFixture) {
@@ -201,10 +207,17 @@ public class FixtureServiceImpl implements FixtureService {
 			}
 		}
 		catch (Exception ex) {
-			LOGGER.error(ex, ex);
+			log.error(ex, ex);
 		}
 		
 		return result;
+	}
+
+	@Override
+	public DataTablesOutput<Fixture> getFixture(DataTablesInput input) {
+		log.debug(" getFixture: " + input);
+		
+		return fixtureDataTablesRepository.findAll(input, null);
 	}
 	
 }
