@@ -7,8 +7,8 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kugiojotaro.placesshots.dto.FixtureDataTablesDto;
 import com.kugiojotaro.placesshots.dto.FixtureDto;
-import com.kugiojotaro.placesshots.entity.Fixture;
 
 public interface FixtureService {
 
@@ -24,14 +24,19 @@ public interface FixtureService {
 	@Transactional
 	public Boolean delete(Short id);
 	
+	@Transactional(readOnly = true)
 	public FixtureDto selectById(Long id);
 
-	List<FixtureDto> findByLeagueAndWeek(Short leagueId, Short week);
+	@Transactional(readOnly = true)
+	public List<FixtureDto> findByLeagueAndWeek(Short leagueId, Short week);
 	
-	List<FixtureDto> findByLeague(Short leagueId);
+	@Transactional(readOnly = true)
+	public List<FixtureDto> findByLeague(Short leagueId);
 	
-	List<FixtureDto> findByRound(String round);
+	@Transactional(readOnly = true)
+	public List<FixtureDto> findByRound(String round);
 	
-	public DataTablesOutput<Fixture> getFixture(DataTablesInput input);
+	@Transactional(readOnly = true)
+	public DataTablesOutput<FixtureDataTablesDto> getFixture(DataTablesInput input);
 
 }

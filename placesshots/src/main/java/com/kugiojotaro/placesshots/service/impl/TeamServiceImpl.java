@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.kugiojotaro.placesshots.dto.TeamDto;
 import com.kugiojotaro.placesshots.entity.Team;
-import com.kugiojotaro.placesshots.mapper.BeanMapper;
+import com.kugiojotaro.placesshots.mapper.TeamMapper;
 import com.kugiojotaro.placesshots.repository.TeamRepository;
 import com.kugiojotaro.placesshots.service.TeamService;
 import com.kugiojotaro.placesshots.util.Helper;
@@ -23,14 +23,14 @@ public class TeamServiceImpl implements TeamService {
 	private TeamRepository teamRepository;
 	
 	@Autowired
-	private BeanMapper<TeamDto, Team> beanMapper;
+	private TeamMapper teamMapper;
 	
 	@Override
 	public Boolean create(TeamDto teamDto) {
 		log.info(" create");
 		
 		try {
-			Team team = beanMapper.toPersistenceBean(teamDto);
+			Team team = teamMapper.toPersistenceBean(teamDto);
 			team.setLeague(Helper.string2Short(teamDto.getLeagueId()));
 			teamRepository.save(team);
 		}
@@ -47,7 +47,7 @@ public class TeamServiceImpl implements TeamService {
 		
 		try {
 			Team team = teamRepository.findOne(Helper.string2Integer(teamDto.getId()));
-			team = beanMapper.toPersistenceBean(teamDto);
+			team = teamMapper.toPersistenceBean(teamDto);
 			team.setLeague(Helper.string2Short(teamDto.getLeagueId()));
 			teamRepository.save(team);
 		}
@@ -65,7 +65,7 @@ public class TeamServiceImpl implements TeamService {
 		TeamDto result = null;
 		
 		try {
-			result = beanMapper.toDtoBean(teamRepository.findOne(id));
+			result = teamMapper.toDtoBean(teamRepository.findOne(id));
 		}
 		catch (Exception ex) {
 			log.error(ex, ex);
@@ -89,7 +89,7 @@ public class TeamServiceImpl implements TeamService {
 		
 		try {
 			List<Team> listTeam = teamRepository.findByLeague(leagueId);
-			result = beanMapper.toDtoBean(listTeam);
+			result = teamMapper.toDtoBean(listTeam);
 		}
 		catch (Exception ex) {
 			log.error(ex, ex);

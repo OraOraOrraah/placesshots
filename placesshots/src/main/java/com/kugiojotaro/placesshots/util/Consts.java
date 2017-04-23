@@ -23,8 +23,8 @@ public class Consts {
 	public static final String ROUND_12 = "12";
 	public static final String ROUND_13 = "13";
 	public static final String ROUND_16 = "16";
-	public static final String ROUND_8 = "8";
-	public static final String ROUND_4 = "4";
-	public static final String ROUND_2 = "2";
+	public static final String ROUND_8 = "08";
+	public static final String ROUND_4 = "04";
+	public static final String ROUND_2 = "02";
 
 }

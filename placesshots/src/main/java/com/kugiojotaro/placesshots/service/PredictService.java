@@ -18,7 +18,7 @@ public interface PredictService {
 	public Boolean create(PredictDto predictDto);
 	
 	@Transactional
-	public Boolean predict(String user, Short week, List<PredictDto> listPredictDto);
+	public Boolean predict(Integer userId, Short week, List<PredictDto> listPredictDto);
 
 	/*
 	@Transactional
@@ -28,29 +28,29 @@ public interface PredictService {
 	public Boolean delete(Long id);
 	*/
 
-	List<PredictDto> findByUser(String username);
+	List<PredictDto> findByUserId(Integer userId);
 	
 	List<PredictDto> findByWeek(Short week);
 	
-	List<PredictDto> findByUserAndWeek(String username, Short week);
+	List<PredictDto> findByUserIdAndWeek(Integer userId, Short week);
 	
 	List<PredictResultDto> weeklyResult(Short week);
 	
-	List<PredictResultDto> result(String username);
+	List<PredictResultDto> result(Integer userId);
 	
 	List<UserPointDto> standing(String round);
 	
-	@Transactional
-	public Boolean updatePoint(Short week);
+//	@Transactional
+//	public Boolean updatePoint(Short week);
 
 	@Transactional
 	public Boolean predictChampion(PredictChampionDto predictChampionDto);
 	
 	@Transactional
-	public PredictChampionDto findPredictChampionByUser(String username);
+	public PredictChampionDto findPredictChampionByUserId(Integer userId);
 	
 	List<PredictChampionDisplayDto> resultPredictChampion();
 	
-	List<UserPredictPerformanceDto> performance(String username);
+	List<UserPredictPerformanceDto> performance(Integer userId);
 	
 }

@@ -9,10 +9,13 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Service;
 
+import com.kugiojotaro.placesshots.dto.FixtureDataTablesDto;
 import com.kugiojotaro.placesshots.dto.FixtureDto;
 import com.kugiojotaro.placesshots.entity.Fixture;
+import com.kugiojotaro.placesshots.mapper.FixtureDataTablesMapper;
 import com.kugiojotaro.placesshots.mapper.FixtureMapper;
-import com.kugiojotaro.placesshots.repository.FixtureDataTablesRepository;
+import com.kugiojotaro.placesshots.predicate.FixturePredicate;
+import com.kugiojotaro.placesshots.repository.FixtureQDataTablesRepository;
 import com.kugiojotaro.placesshots.repository.FixtureRepository;
 import com.kugiojotaro.placesshots.repository.TeamRepository;
 import com.kugiojotaro.placesshots.service.FixtureService;
@@ -28,13 +31,16 @@ public class FixtureServiceImpl implements FixtureService {
 	private FixtureRepository fixtureRepository;
 	
 	@Autowired
-	private FixtureDataTablesRepository fixtureDataTablesRepository;
+	private FixtureQDataTablesRepository fixtureQDataTablesRepository;
 	
 	@Autowired
 	private TeamRepository teamRtepository;
 	
 	@Autowired
 	private FixtureMapper fixtureMapper;
+	
+	@Autowired
+	private FixtureDataTablesMapper fixtureDataTablesMapper;
 	
 	@Override
 	public Boolean create(FixtureDto fixtureDto) {
@@ -90,7 +96,6 @@ public class FixtureServiceImpl implements FixtureService {
 			fixture.setAwayExtraTimeScore(fixtureDto.getAwayExtraTimeScore() == "" ? null : Helper.string2Short(fixtureDto.getAwayExtraTimeScore()));
 			fixture.setHomePenaltyScore(fixtureDto.getHomePenaltyScore() == "" ? null : Helper.string2Short(fixtureDto.getHomePenaltyScore()));
 			fixture.setAwayPenaltyScore(fixtureDto.getAwayPenaltyScore() == "" ? null : Helper.string2Short(fixtureDto.getAwayPenaltyScore()));
-			fixture.setUpdateBy(fixtureDto.getUpdateBy());
 			fixture.setUpdateDate(new Date());
 			
 			fixtureRepository.save(fixture);
@@ -214,10 +219,21 @@ public class FixtureServiceImpl implements FixtureService {
 	}
 
 	@Override
-	public DataTablesOutput<Fixture> getFixture(DataTablesInput input) {
-		log.debug(" getFixture: " + input);
+	public DataTablesOutput<FixtureDataTablesDto> getFixture(DataTablesInput input) {
+		log.info(" getFixture: " + input);
 		
-		return fixtureDataTablesRepository.findAll(input, null);
+		DataTablesOutput<Fixture> dtoFixture = fixtureQDataTablesRepository.findAll(input, FixturePredicate.inquiry(input));
+		DataTablesOutput<FixtureDataTablesDto> result = fixtureDataTablesMapper.toDtoBean(dtoFixture);
+		result.setData(new ArrayList<FixtureDataTablesDto>());
+		for (Fixture fixture : dtoFixture.getData()) {
+			FixtureDataTablesDto fixtureDataTablesDto = fixtureDataTablesMapper.toDtoBean(fixture);
+			fixtureDataTablesDto.setHomeTitle(fixture.getHome().getTitle());
+			fixtureDataTablesDto.setAwayTitle(fixture.getAway().getTitle());
+			fixtureDataTablesDto.setHomeShortTitle(fixture.getHome().getShortTitle());
+			fixtureDataTablesDto.setAwayShortTitle(fixture.getAway().getShortTitle());
+			result.getData().add(fixtureDataTablesDto);
+		}
+		return result;
 	}
 	
 }

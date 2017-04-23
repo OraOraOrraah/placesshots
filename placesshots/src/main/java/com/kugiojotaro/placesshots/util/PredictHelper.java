@@ -2,6 +2,7 @@ package com.kugiojotaro.placesshots.util;
 
 import com.kugiojotaro.placesshots.entity.Fixture;
 import com.kugiojotaro.placesshots.entity.Predict;
+import com.kugiojotaro.placesshots.entity.User;
 
 //import org.apache.log4j.Logger;
 
@@ -47,6 +48,15 @@ public class PredictHelper {
 		}
 		
 		return point;
+	}
+	
+	public static String getDisplayName(User user) {
+		if (user.getUserConnection() == null) {
+			return user.getUsername();
+		}
+		else {
+			return user.getUserConnection().getDisplayName();
+		}
 	}
 
 }

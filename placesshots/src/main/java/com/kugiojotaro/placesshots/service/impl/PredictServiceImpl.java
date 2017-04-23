@@ -27,6 +27,7 @@ import com.kugiojotaro.placesshots.mapper.PredictChampionMapper;
 import com.kugiojotaro.placesshots.mapper.PredictMapper;
 import com.kugiojotaro.placesshots.repository.FixtureRepository;
 import com.kugiojotaro.placesshots.repository.PredictChampionRepository;
+import com.kugiojotaro.placesshots.repository.PredictCustomRepository;
 import com.kugiojotaro.placesshots.repository.PredictRepository;
 import com.kugiojotaro.placesshots.repository.TeamRepository;
 import com.kugiojotaro.placesshots.repository.UserRepository;
@@ -43,6 +44,9 @@ public class PredictServiceImpl implements PredictService {
 
 	@Autowired
 	private PredictRepository predictRepository;
+	
+	@Autowired
+	private PredictCustomRepository predictCustomRepository;
 	
 	@Autowired
 	private PredictChampionRepository predictChampionRepository;
@@ -78,11 +82,11 @@ public class PredictServiceImpl implements PredictService {
 	}
 	
 	@Override
-	public Boolean predict(String user, Short week, List<PredictDto> listPredictDto) {
+	public Boolean predict(Integer userId, Short week, List<PredictDto> listPredictDto) {
 		log.debug(" predict");
 		
 		try {
-			predictRepository.delete(predictRepository.findByUserAndWeek(user, week));
+			predictRepository.delete(predictCustomRepository.findByUserIdAndWeek(userId, week));
 			
 			//
 			for (PredictDto predictDto : listPredictDto) {
@@ -91,8 +95,10 @@ public class PredictServiceImpl implements PredictService {
 				log.info(" awayScore: " + predictDto.getAwayScore());
 				
 				Predict predict = predictMapper.toPersistenceBean(predictDto);
-				//predict.setUser(userRepository.findOne(predictDto.getUser()));
-				predict.setFixture(Helper.string2Long(predictDto.getFixtureId()));
+				predict.setUserId(Helper.string2Integer(predictDto.getUserId()));
+				Fixture f = fixtureRepository.findOne(Helper.string2Long(predictDto.getFixtureId()));
+				log.info(" f: " + f);
+				predict.setFixture(f);
 				predict.setCreateDate(new Date());
 				predictRepository.save(predict);
 				
@@ -123,13 +129,13 @@ public class PredictServiceImpl implements PredictService {
 	*/
 
 	@Override
-	public List<PredictDto> findByUser(String username) {
-		log.debug(" findByUser");
+	public List<PredictDto> findByUserId(Integer userId) {
+		log.debug(" findByUserId");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
 		try {
-			List<Predict> listPredict = predictRepository.findByUser(username);
+			List<Predict> listPredict = predictRepository.findByUserId(userId);
 			for (Predict predict : listPredict) {
 				PredictDto predictDto = new PredictDto();
 				predictDto = predictMapper.toDtoBean(predict);
@@ -147,39 +153,39 @@ public class PredictServiceImpl implements PredictService {
 	
 	@Override
 	public List<PredictDto> findByWeek(Short week) {
-		log.debug(" findByUsername");
+		log.debug(" findByWeek");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
-		try {
-			List<Predict> listPredict = predictRepository.findByWeek(week);
-			for (Predict predict : listPredict) {
-				PredictDto predictDto = new PredictDto();
-				predictDto = predictMapper.toDtoBean(predict);
-				predictDto.setFixtureId((predict.getFixture() + ""));
-				
-				result.add(predictDto);
-			}
-		}
-		catch (Exception ex) {
-			log.error(ex, ex);
-		}
+//		try {
+//			List<Predict> listPredict = predictRepository.findByWeek(week);
+//			for (Predict predict : listPredict) {
+//				PredictDto predictDto = new PredictDto();
+//				predictDto = predictMapper.toDtoBean(predict);
+//				predictDto.setFixtureId((predict.getFixture() + ""));
+//				
+//				result.add(predictDto);
+//			}
+//		}
+//		catch (Exception ex) {
+//			log.error(ex, ex);
+//		}
 		
 		return result;
 	}
 	
 	@Override
-	public List<PredictDto> findByUserAndWeek(String username, Short week) {
+	public List<PredictDto> findByUserIdAndWeek(Integer userId, Short week) {
 		log.debug(" findByUserAndWeek");
 		
 		List<PredictDto> result = new ArrayList<PredictDto>();
 		
 		try {
-			List<Predict> listPredict = predictRepository.findByUserAndWeek(username, week);
+			List<Predict> listPredict = predictCustomRepository.findByUserIdAndWeek(userId, week);
 			for (Predict predict : listPredict) {
 				PredictDto predictDto = new PredictDto();
 				predictDto = predictMapper.toDtoBean(predict);
-				predictDto.setFixtureId((predict.getFixture() + ""));
+				predictDto.setFixtureId((predict.getFixture().getId() + ""));
 				
 				result.add(predictDto);
 			}
@@ -202,37 +208,24 @@ public class PredictServiceImpl implements PredictService {
 			List<Fixture> listFixture =  fixtureRepository.findByWeek(week);
 			
 			//
-			Map<String, Map<Long, Predict>> mapUserPredict = new HashMap<String, Map<Long, Predict>>();
-			List<Predict> listPredict = predictRepository.findByWeekOrderByUserAsc(week);
+			Map<Integer, Map<Long, Predict>> mapUserPredict = new HashMap<Integer, Map<Long, Predict>>();
+//			List<Predict> listPredict = predictRepository.findByWeekOrderByUserIdAsc(week);
+			List<Predict> listPredict = new ArrayList<Predict>();
 			for (Predict predict : listPredict) {
-				if (mapUserPredict.containsKey(predict.getUser()) == false) {
-					mapUserPredict.put(predict.getUser(), new HashMap<Long, Predict>());
+				if (mapUserPredict.containsKey(predict.getUserId()) == false) {
+					mapUserPredict.put(predict.getUserId(), new HashMap<Long, Predict>());
 				}
 				
-				Map<Long, Predict> mapPredict = mapUserPredict.get((predict.getUser()));
-				mapPredict.put(predict.getFixture(), predict);
+				Map<Long, Predict> mapPredict = mapUserPredict.get((predict.getUserId()));
+				mapPredict.put(predict.getFixture().getId(), predict);
 				
-				mapUserPredict.put(predict.getUser(), mapPredict);
+				mapUserPredict.put(predict.getUserId(), mapPredict);
 			}
-			
-			//
-			/*
-			PredictResultDto header = new PredictResultDto();
-			header.setPoint(0);
-			for (Fixture fixture : listFixture) {
-				PredictResultDetailDto predictResultDetailDto = new PredictResultDetailDto();
-				predictResultDetailDto.setNo(fixture.getHome().getShortTitle() + "-" + fixture.getAway().getShortTitle() + "<br/>" + Helper.nullObj2Blank(fixture.getHomeScore()) + " - " + Helper.nullObj2Blank(fixture.getAwayScore()));
-				header.getListPredictResultDetailDto().add(predictResultDetailDto);
-			}
-			result.add(header);
-			*/
 			
 			//
 			List<User> listUser = userRepository.findAll();
 			for (User user : listUser) {
-				PredictResultDto predictResultDto = new PredictResultDto();
-				predictResultDto.setUsername(user.getUsername());
-				predictResultDto.setPoint(0);
+				PredictResultDto predictResultDto = PredictResultDto.builder().displayName(PredictHelper.getDisplayName(user)).point(0).build();
 				
 				List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
 				for (Fixture fixture : listFixture) {
@@ -277,32 +270,31 @@ public class PredictServiceImpl implements PredictService {
 	}
 	
 	@Override
-	public List<PredictResultDto> result(String username) {
-		log.debug(" result: " + username);
+	public List<PredictResultDto> result(Integer userId) {
+		log.debug(" result: " + userId);
 		
 		List<PredictResultDto> result = new ArrayList<PredictResultDto>();
 		
 		try {
+			User user = userRepository.findOne(userId);
 			//
 			List<Fixture> listFixture =  fixtureRepository.findByLeague(Consts.EURO_2016);
 			
 			//
-			Map<String, Map<Long, Predict>> mapUserPredict = new HashMap<String, Map<Long, Predict>>();
-			List<Predict> listPredict = predictRepository.findByUser(username);
+			Map<Integer, Map<Long, Predict>> mapUserPredict = new HashMap<Integer, Map<Long, Predict>>();
+			List<Predict> listPredict = predictRepository.findByUserId(userId);
 			for (Predict predict : listPredict) {
-				if (mapUserPredict.containsKey(predict.getUser()) == false) {
-					mapUserPredict.put(predict.getUser(), new HashMap<Long, Predict>());
+				if (mapUserPredict.containsKey(predict.getUserId()) == false) {
+					mapUserPredict.put(predict.getUserId(), new HashMap<Long, Predict>());
 				}
 				
-				Map<Long, Predict> mapPredict = mapUserPredict.get((predict.getUser()));
-				mapPredict.put(predict.getFixture(), predict);
+				Map<Long, Predict> mapPredict = mapUserPredict.get((predict.getUserId()));
+				mapPredict.put(predict.getFixture().getId(), predict);
 				
-				mapUserPredict.put(predict.getUser(), mapPredict);
+				mapUserPredict.put(predict.getUserId(), mapPredict);
 			}
 			
-			PredictResultDto predictResultDto = new PredictResultDto();
-			predictResultDto.setUsername(username);
-			predictResultDto.setPoint(0);
+			PredictResultDto predictResultDto = PredictResultDto.builder().displayName(PredictHelper.getDisplayName(user)).point(0).build();
 				
 			List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
 			for (Fixture fixture : listFixture) {
@@ -312,8 +304,8 @@ public class PredictServiceImpl implements PredictService {
 				predictResultDetailDto.setPredictAwayScore("");
 				predictResultDetailDto.setPoint(0);
 					
-				if (mapUserPredict.get(username) != null) {
-					Map<Long, Predict> mapPredict = mapUserPredict.get((username));
+				if (mapUserPredict.get(userId) != null) {
+					Map<Long, Predict> mapPredict = mapUserPredict.get((userId));
 					if (mapPredict.get(fixture.getId()) != null) {
 						Predict predict = mapPredict.get(fixture.getId());
 						predictResultDetailDto.setPredictHomeScore(Helper.null2Blank(predict.getHomeScore() + ""));
@@ -376,23 +368,23 @@ public class PredictServiceImpl implements PredictService {
 			}
 			
 			//
-			Map<String, PredictChampion> mapPredictChampion = new HashMap<String, PredictChampion>();
+			Map<Integer, PredictChampion> mapPredictChampion = new HashMap<Integer, PredictChampion>();
 			List<PredictChampion> listPredictChampion = predictChampionRepository.findAll();
 			for (PredictChampion predictChampion : listPredictChampion) {
-				mapPredictChampion.put(predictChampion.getUser(), predictChampion);
+				mapPredictChampion.put(predictChampion.getUserId(), predictChampion);
 			}
 			
-			Map<String, Integer> mapUserPoint = new HashMap<String, Integer>();
+			Map<Integer, Integer> mapUserPoint = new HashMap<Integer, Integer>();
 
 			List<Predict> listPredict = predictRepository.findAll(new Sort(Direction.ASC, "user"));
 			for (Predict predict : listPredict) {
-				if (mapUserPoint.containsKey(predict.getUser()) == false) {
-					mapUserPoint.put(predict.getUser(), 0);
+				if (mapUserPoint.containsKey(predict.getUserId()) == false) {
+					mapUserPoint.put(predict.getUserId(), 0);
 				}
 
 				Fixture fixture = mapFixture.get(predict.getFixture());
 				if (fixture != null && fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
-					mapUserPoint.put(predict.getUser(), mapUserPoint.get(predict.getUser()) + PredictHelper.calculatePoint(fixture, predict) + 1);
+					mapUserPoint.put(predict.getUserId(), mapUserPoint.get(predict.getUserId()) + PredictHelper.calculatePoint(fixture, predict) + 1);
 				}
 			}
 			
@@ -412,7 +404,7 @@ public class PredictServiceImpl implements PredictService {
 				}
 				
 				for (Predict predict : listPredict) {
-					if (predict.getUser().equals(user.getUsername())) {
+					if (predict.getUserId() == user.getUserId()) {
 						//
 						Fixture fixture = mapFixture.get(predict.getFixture());
 						if (fixture != null && fixture.getHomeScore() != null && fixture.getAwayScore() != null) {
@@ -493,38 +485,38 @@ public class PredictServiceImpl implements PredictService {
 		return result;
 	}
 	
-	@Override
-	public Boolean updatePoint(Short week) {
-		log.debug(" updatePoint (week: " + week + ")");
-		
-		Boolean result = false;
-		
-		try {
-			//
-			Map<Long, Fixture> mapFixture = new HashMap<Long, Fixture>();
-			List<Fixture> listFixture =  fixtureRepository.findByWeek(week);
-			for (Fixture fixture : listFixture) {
-				mapFixture.put(fixture.getId(), fixture);
-			}
-			
-			//
-			List<Predict> listPredictUpdate = new ArrayList<Predict>();
-			
-			List<Predict> listPredict = predictRepository.findByWeek(week);
-			for (Predict predict : listPredict) {
-				Fixture fixture = mapFixture.get(predict.getFixture());
-				
-				predict.setPoint(PredictHelper.calculatePoint(fixture, predict));
-			}
-			
-			predictRepository.save(listPredictUpdate);
-		}
-		catch (Exception ex) {
-			log.error(ex, ex);
-		}
-		
-		return result;
-	}
+//	@Override
+//	public Boolean updatePoint(Short week) {
+//		log.debug(" updatePoint (week: " + week + ")");
+//		
+//		Boolean result = false;
+//		
+//		try {
+//			//
+//			Map<Long, Fixture> mapFixture = new HashMap<Long, Fixture>();
+//			List<Fixture> listFixture =  fixtureRepository.findByWeek(week);
+//			for (Fixture fixture : listFixture) {
+//				mapFixture.put(fixture.getId(), fixture);
+//			}
+//			
+//			//
+//			List<Predict> listPredictUpdate = new ArrayList<Predict>();
+//			
+//			List<Predict> listPredict = predictRepository.findByWeek(week);
+//			for (Predict predict : listPredict) {
+//				Fixture fixture = mapFixture.get(predict.getFixture());
+//				
+//				predict.setPoint(PredictHelper.calculatePoint(fixture, predict));
+//			}
+//			
+//			predictRepository.save(listPredictUpdate);
+//		}
+//		catch (Exception ex) {
+//			log.error(ex, ex);
+//		}
+//		
+//		return result;
+//	}
 
 	@Override
 	public Boolean predictChampion(PredictChampionDto predictChampionDto) {
@@ -533,12 +525,12 @@ public class PredictServiceImpl implements PredictService {
 		Boolean result = false;
 		
 		try {
-			PredictChampion predictChampionToDelete = predictChampionRepository.findByUser(predictChampionDto.getUser());
+			PredictChampion predictChampionToDelete = predictChampionRepository.findByUserId(predictChampionDto.getUserId());
 			if (predictChampionToDelete != null) {
 				predictChampionRepository.delete(predictChampionToDelete);
 			}
 	
-			if (predictChampionDto.getTeamId() != null && !predictChampionDto.getTeamId().equals("")) {
+			if (predictChampionDto.getTeamId() != null) {
 				PredictChampion predictChampion = predictChampionMapper.toPersistenceBean(predictChampionDto);
 				predictChampion.setCreateDate(new Date());
 				predictChampionRepository.save(predictChampion);
@@ -556,13 +548,13 @@ public class PredictServiceImpl implements PredictService {
 	}
 
 	@Override
-	public PredictChampionDto findPredictChampionByUser(String username) {
-		log.debug(" findPredictChampionByUser");
+	public PredictChampionDto findPredictChampionByUserId(Integer userId) {
+		log.debug(" findPredictChampionByUserId");
 		
 		PredictChampionDto predictChampionDto = null;
 		
 		try {
-			PredictChampion predictChampion = predictChampionRepository.findByUser(username);
+			PredictChampion predictChampion = predictChampionRepository.findByUserId(userId);
 			if (predictChampion != null) {
 				predictChampionDto = predictChampionMapper.toDtoBean(predictChampion);
 			}
@@ -583,9 +575,9 @@ public class PredictServiceImpl implements PredictService {
 		try {
 			//
 			List<PredictChampion> listPredictChampion = predictChampionRepository.findAll();
-			Map<String, PredictChampion> mapPredictChampion = new HashMap<String, PredictChampion>();
+			Map<Integer, PredictChampion> mapPredictChampion = new HashMap<Integer, PredictChampion>();
 			for (PredictChampion prdictChampion : listPredictChampion) {
-				mapPredictChampion.put(prdictChampion.getUser(), prdictChampion);
+				mapPredictChampion.put(prdictChampion.getUserId(), prdictChampion);
 			}
 			
 			//
@@ -682,17 +674,17 @@ public class PredictServiceImpl implements PredictService {
 	}
 
 	@Override
-	public List<UserPredictPerformanceDto> performance(String username) {
-		log.debug(" performance: " + username);
+	public List<UserPredictPerformanceDto> performance(Integer userId) {
+		log.debug(" performance: " + userId);
 		
 		List<UserPredictPerformanceDto> listUserPredictPerformanceDto = new ArrayList<UserPredictPerformanceDto>();
 		
 		try {
 			//
-			List<Predict> listPredict = predictRepository.findByUser(username);
+			List<Predict> listPredict = predictRepository.findByUserId(userId);
 			Map<Long, Predict> mapPredict = new HashMap<Long, Predict>();
 			for (Predict predict : listPredict) {
-				mapPredict.put(predict.getFixture(), predict);
+				mapPredict.put(predict.getFixture().getId(), predict);
 			}
 			
 			//
