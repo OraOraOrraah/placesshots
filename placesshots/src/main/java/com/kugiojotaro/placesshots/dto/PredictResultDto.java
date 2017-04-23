@@ -17,7 +17,7 @@ public class PredictResultDto implements Serializable {
 
 	private static final long serialVersionUID = -5654550503823522412L;
 	
-	private String username;
+	private String displayName;
 	private List<PredictResultDetailDto> listPredictResultDetailDto = new ArrayList<PredictResultDetailDto>();
 	private Integer point;
 	private String displayPoint;

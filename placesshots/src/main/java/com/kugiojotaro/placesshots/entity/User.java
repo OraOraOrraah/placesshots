@@ -36,7 +36,7 @@ public class User implements Serializable {
 	@Column(name = "user_id", unique = true, nullable = false)
 	private Integer userId;
 	
-	@Column(name = "username", unique = true)
+	@Column(name = "username")
 	private String username;
 	
 	@Column(name = "password")
@@ -51,17 +51,14 @@ public class User implements Serializable {
 	@Column(name = "lastname")
 	private String lastname;
 	
-	@Column(name = "icon")
-	private String icon;
-	
 	@Column(name = "create_by")
-	private String createBy;
+	private Integer createBy;
 	
 	@Column(name = "create_date")
 	private Date createDate;
 	
 	@Column(name = "update_by")
-	private String updateBy;
+	private Integer updateBy;
 	
 	@Column(name = "update_date")
 	private Date updateDate;

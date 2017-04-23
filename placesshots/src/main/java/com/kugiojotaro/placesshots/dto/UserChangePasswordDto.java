@@ -19,7 +19,7 @@ public class UserChangePasswordDto implements Serializable {
 	
 	private static final long serialVersionUID = -5188062645965331298L;
 
-	private String username;
+	private Integer userId;
 	
 	@NotBlank
 	private String oldPassword;

@@ -16,8 +16,8 @@ public class PredictChampionDto implements Serializable {
 	private static final long serialVersionUID = 236161925302832755L;
 	
 	private String id;
-	private String user;
-	private String teamId;
+	private Integer userId;
+	private Integer teamId;
 	private String round;
 	
 }

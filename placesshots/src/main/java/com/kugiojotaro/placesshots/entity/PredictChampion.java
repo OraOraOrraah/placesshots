@@ -10,8 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.kugiojotaro.placesshots.entity.Fixture.FixtureBuilder;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,8 +30,8 @@ public class PredictChampion implements Serializable {
 	@Column(name = "id", unique = true, nullable = false)
 	private Long id;
 	
-	@Column(name = "username")
-	private String user;
+	@Column(name = "user_id")
+	private Integer userId;
 	
 	@Column(name = "team_id")
 	private Integer teamId;

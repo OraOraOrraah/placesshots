@@ -20,6 +20,8 @@ public class UserDto implements Serializable {
 	
 	private static final long serialVersionUID = 4709463601376556555L;
 	
+	private String userId;
+	
 	@NotBlank
 	@Size(min = 4, max = 20)
 	private String username;
