@@ -19,7 +19,11 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import com.kugiojotaro.placesshots.dto.AuthUser;
 import com.kugiojotaro.placesshots.entity.User;
+import com.kugiojotaro.placesshots.entity.UserConnection;
+import com.kugiojotaro.placesshots.entity.UserConnectionId;
+import com.kugiojotaro.placesshots.repository.UserConnectionRepository;
 import com.kugiojotaro.placesshots.repository.UserCustomRepository;
+import com.kugiojotaro.placesshots.service.UserService;
 import com.kugiojotaro.placesshots.util.Consts;
 
 import lombok.extern.log4j.Log4j;
@@ -32,30 +36,45 @@ public class SpringSecuritySignInAdapter implements SignInAdapter {
 	private UserCustomRepository userCustomRepository;
 	
 	@Autowired
+	private UserConnectionRepository userConnectionRepository;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
 	private HttpServletRequest httpServletRequest;
 	
 	@Override
 	public String signIn(String localUserId, Connection<?> connection, NativeWebRequest nativeWebRequest) {
-		log.info(" signIn: ");
-		
-		ConnectionKey connectionKey = connection.getKey();
-		String providerUserId = connectionKey.getProviderUserId();
-		log.info(" providerUserId: " + providerUserId);
-		
-		User user = userCustomRepository.findByProviderUserId(providerUserId);
-		
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		log.info("Grant ROLE_USER to this user");
-		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-		if (user.getUsername().equals("OraOraOrraah")) {
-			authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		try {
+			log.info(" SignIn: ");
+			
+			ConnectionKey connectionKey = connection.getKey();
+			
+			User user = userCustomRepository.findByProviderUserId(connectionKey.getProviderUserId());
+			UserConnection userConnection = null;
+			if (user == null) {
+				userConnection = userConnectionRepository.findOne(UserConnectionId.builder().userId(connectionKey.getProviderUserId()).providerId(connectionKey.getProviderId()).providerUserId(connectionKey.getProviderUserId()).build());
+				user = userService.fbSignUp(userConnection);
+			}
+			else {
+				userConnection = user.getUserConnection();
+			}
+			
+			List<GrantedAuthority> listGrantedAuthority = new ArrayList<GrantedAuthority>();
+			listGrantedAuthority.add(new SimpleGrantedAuthority("ROLE_USER"));
+			if (user.getUsername().equals("OraOraOrraah")) {
+				listGrantedAuthority.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+			}
+			
+			Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), listGrantedAuthority);
+		    SecurityContextHolder.getContext().setAuthentication(authentication);
+		    
+		    httpServletRequest.getSession().setAttribute(Consts.AUTHEN_USER, AuthUser.builder().userId(user.getUserId()).username(user.getUsername()).displayName(userConnection.getDisplayName()).imageURL(userConnection.getImageUrl()).build());
 		}
-	    
-		Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), authorities);
-	    SecurityContextHolder.getContext().setAuthentication(authentication);
-	    
-	    httpServletRequest.getSession().setAttribute(Consts.AUTHEN_USER, AuthUser.builder().userId(user.getUserId()).username(user.getUsername()).displayName(user.getUserConnection() == null ? user.getUsername() : user.getUserConnection().getDisplayName()).imageURL(user.getUserConnection() == null ? "" : user.getUserConnection().getImageUrl()).build());
-	    
+		catch (Exception e) {
+			log.error(" SignIn Error: " + e);
+		}
 		return null;
 	}
 	
