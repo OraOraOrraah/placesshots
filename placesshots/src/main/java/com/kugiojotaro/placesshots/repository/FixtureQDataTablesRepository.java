@@ -1,9 +1,9 @@
 package com.kugiojotaro.placesshots.repository;
 
-import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
+import org.springframework.data.jpa.datatables.qrepository.QDataTablesRepository;
 
 import com.kugiojotaro.placesshots.entity.Fixture;
 
-public interface FixtureDataTablesRepository extends DataTablesRepository<Fixture, Long> {
+public interface FixtureQDataTablesRepository extends QDataTablesRepository<Fixture, Long> {
 	
 }

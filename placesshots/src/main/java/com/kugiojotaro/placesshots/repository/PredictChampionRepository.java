@@ -6,6 +6,6 @@ import com.kugiojotaro.placesshots.entity.PredictChampion;
 
 public interface PredictChampionRepository extends JpaRepository<PredictChampion, Long> {
 	
-	public PredictChampion findByUser(String username);
+	public PredictChampion findByUserId(Integer userId);
 	
 }

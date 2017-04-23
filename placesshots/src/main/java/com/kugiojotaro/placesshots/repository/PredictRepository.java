@@ -8,12 +8,12 @@ import com.kugiojotaro.placesshots.entity.Predict;
 
 public interface PredictRepository extends JpaRepository<Predict, Long> {
 	
-	public List<Predict> findByUser(String username);
+	public List<Predict> findByUserId(Integer userId);
 	
-	public List<Predict> findByWeek(Short week);
+//	public List<Predict> findByWeek(Short week);
+//	
+//	public List<Predict> findByWeekOrderByUserIdAsc(Short week);
 	
-	public List<Predict> findByWeekOrderByUserAsc(Short week);
-	
-	public List<Predict> findByUserAndWeek(String username, Short week);
+//	public List<Predict> findByUserIdAndWeek(Integer userId, Short week);
 	
 }
