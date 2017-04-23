@@ -13,6 +13,7 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
 import lombok.extern.log4j.Log4j;
 
@@ -87,7 +88,20 @@ public class GenericMapperImpl<T extends Serializable, R extends Serializable> i
 	@Override
 	public Page<T> toDtoBean(Page<? extends R> r, Pageable pageable) {
 		Page<T> pageDto = new PageImpl<T>(toDtoBean(r.getContent()), pageable, r.getTotalElements());
+		
 		return pageDto;
+	}
+
+	@Override
+	public DataTablesOutput<T> toDtoBean(DataTablesOutput<? extends R> r) {
+		DataTablesOutput<T> dataTablesOutputDto = new DataTablesOutput<T>();
+		dataTablesOutputDto.setData(toDtoBean(r.getData()));
+		dataTablesOutputDto.setDraw(r.getDraw());
+		dataTablesOutputDto.setError(r.getError());
+		dataTablesOutputDto.setRecordsFiltered(r.getRecordsFiltered());
+		dataTablesOutputDto.setRecordsTotal(r.getRecordsTotal());
+		
+		return dataTablesOutputDto;
 	}
 	
 }

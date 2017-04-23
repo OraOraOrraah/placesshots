@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
 public interface GenericMapper<T extends Serializable, R extends Serializable> {
 	
@@ -19,5 +20,7 @@ public interface GenericMapper<T extends Serializable, R extends Serializable> {
 	List<R> toPersistenceBean(List<? extends T> t);
 	
 	Page<T> toDtoBean(Page<? extends R> r, Pageable pageable);
+	
+	DataTablesOutput<T> toDtoBean(DataTablesOutput<? extends R> r);
 	
 }
