@@ -18,11 +18,14 @@
 	</bean>
 	
 	<bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" factory-method="noOpText" />
-        
+    
+    <bean id="userConnectionSignUp" class="com.kugiojotaro.placesshots.authen.UserConnectionSignUp" />
+    
 	<bean id="usersConnectionRepository" class="org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository">
         <constructor-arg ref="dataSource" />
         <constructor-arg ref="connectionFactoryLocator" />
         <constructor-arg ref="textEncryptor" />
+        <property name="connectionSignUp" ref="userConnectionSignUp" />
     </bean>
 
     <bean id="connectionRepository" factory-method="createConnectionRepository" factory-bean="usersConnectionRepository" scope="request">

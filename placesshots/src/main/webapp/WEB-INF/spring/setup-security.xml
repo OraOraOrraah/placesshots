@@ -12,7 +12,7 @@
         <constructor-arg name="strength" value="11" />
     </bean>
 	
-<!-- 	<bean id="customUserDetailsService" class="com.kugiojotaro.placesshots.authen.CustomUserDetailsService" /> -->
+	<bean id="customUserDetailsService" class="com.kugiojotaro.placesshots.authen.CustomUserDetailsService" />
 	
 <!--     <bean id="authenticationSuccessHandler" class="com.kugiojotaro.placesshots.authen.AuthenSuccessHandler" /> -->
     
@@ -46,8 +46,7 @@
     	<security:intercept-url pattern="/predict/resultlastest" access="permitAll" />
     	<security:intercept-url pattern="/predict/history/**" access="permitAll" />
     	<security:intercept-url pattern="/predict/standing" access="permitAll" />
-    	<security:intercept-url pattern="/register/**" access="permitAll" />
-    	<security:intercept-url pattern="/checkUser" access="permitAll" />
+    	<security:intercept-url pattern="/signup/**" access="permitAll" />
     	<security:intercept-url pattern="/forgotpassword/**" access="permitAll" />
     	<security:intercept-url pattern="/connect/facebook" access="permitAll" />
     	<security:intercept-url pattern="/signin/facebook" access="permitAll" />

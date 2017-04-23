@@ -48,13 +48,19 @@
 	<definition name="team/form" extends="layoutMain">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/team/team_form.jsp"  />
 	</definition>
-	
-	<definition name="fixture/form" extends="layoutMain">
-		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_form.jsp"  />
-	</definition>
-	
+
+	<!-- Fixture -->
 	<definition name="fixture/list" extends="layoutMain">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_list.jsp"  />
+	</definition>
+	<definition name="fixture/load" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_load.jsp"  />
+	</definition>
+	<definition name="fixture/form" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_form.jsp"  />
+	</definition>	
+	<definition name="fixture/detail" extends="layoutMain">
+		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_detail.jsp"  />
 	</definition>
 	
 	<definition name="predict/index" extends="layoutMain">
@@ -96,13 +102,6 @@
 	<definition name="connect/facebookConnected" extends="layoutBlank">
 		<put-attribute name="content" value="/WEB-INF/view/jsp/login/facebook-connected.jsp"  />
 	</definition>
-	
-	<definition name="fixture/all" extends="layoutMain">
-		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_all.jsp"  />
-	</definition>
-	
-	<definition name="fixture/load" extends="layoutMain">
-		<put-attribute name="content" value="/WEB-INF/view/jsp/fixture/fixture_load.jsp"  />
-	</definition>
+
 	
 </tiles-definitions>

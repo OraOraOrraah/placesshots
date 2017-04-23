@@ -15,7 +15,7 @@
  
 	<script type="text/javascript" src="<spring:url value="/webjars/jquery/3.0.0/jquery.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/webjars/jquery-ui/1.11.4/jquery-ui.min.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/webjars/bootstrap/3.3.7/js/bootstrap.min.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/webjars/datatables/1.10.12/js/jquery.dataTables.min.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/webjars/datatables/1.10.12/js/dataTables.bootstrap.min.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/webjars/jquery-blockui/2.65/jquery.blockUI.js" />"></script>

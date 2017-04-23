@@ -24,9 +24,9 @@
 		<property name="password" value="${jdbc.password}" />
 	</bean>
 
-	<jpa:repositories base-package="com.kugiojotaro.placesshots.dao" />
 	<jpa:repositories base-package="com.kugiojotaro.placesshots.repository" factory-class="org.springframework.data.jpa.datatables.repository.DataTablesRepositoryFactoryBean" /> 
-	
+	<jpa:repositories base-package="com.kugiojotaro.placesshots.repository" factory-class="org.springframework.data.jpa.datatables.qrepository.QDataTablesRepositoryFactoryBean" /> 
+
 	<tx:annotation-driven transaction-manager="transactionManager" />
 	
 </beans>

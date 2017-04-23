@@ -3,7 +3,8 @@
 	<persistence-unit name="hibernatePersistenceUnit" transaction-type="RESOURCE_LOCAL">
 		<properties>
 			<property name="hibernate.hbm2ddl.auto" value="update" />
+			<property name="show_sql" value="true" />
 		</properties>
-		<mapping-file>orm.xml</mapping-file>
+<!-- 		<mapping-file>orm.xml</mapping-file> -->
 	</persistence-unit>
 </persistence>
