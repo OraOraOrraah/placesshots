@@ -41,59 +41,6 @@ public class UserController extends BaseController {
 	
 	private Map<String,String> radioItem;
 	
-	@RequestMapping(value = "/register", method = RequestMethod.GET)
-	public String registerGet(ModelMap modelMap, HttpServletRequest request) {
-		request.setAttribute("mode", Consts.MODE_ADD);
-		request.setAttribute("userDto", new UserDto());
-		
-		return "user/register";
-	}
-	
-	@RequestMapping(value = "/register/save", method = RequestMethod.POST)
-	public @ResponseBody AjaxJsonResponse registerPost(@Valid @ModelAttribute("userDto") UserDto userDto, BindingResult bindingResult, ModelMap modelMap, HttpServletRequest request) {
-		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
-		
-		try {
-			Map<String ,String> errorsMap = new LinkedHashMap<String, String>();
-			
-			if (bindingResult.hasErrors()) {
-				List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-				for (FieldError fieldError : fieldErrors) {
-	                errorsMap.put(fieldError.getField(), messageSource.getMessage("validation." + fieldError.getCode().toString() + "." + fieldError.getField(), new Object[]{fieldError.getRejectedValue()}, Locale.ENGLISH));
-	            }
-				
-				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
-				
-				return ajaxJsonResponse;
-			}
-			
-			if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
-				errorsMap.put("passwordConfirm", "password confirm not match!");
-				ajaxJsonResponse.setErrorsMap(errorsMap);
-				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
-				
-				return ajaxJsonResponse;
-			}
-			
-			userService.create(userDto);
-			
-//			Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute("mapUserIcon");
-//			if (mapUserIcon != null) {
-//				if (mapUserIcon.get((String) request.getSession().getAttribute(PlaceShotsConsts.SESSION_USER)) == null) {
-//					mapUserIcon.put(userDto.getUsername(), userDto.getIcon());
-//				} 
-//			}
-		}
-		catch (Exception ex) {
-			log.error(ex.getMessage());
-		
-			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
-		}
-		
-		return ajaxJsonResponse;
-	}
-	
 	@RequestMapping(value = "/changepassword", method = RequestMethod.GET)
 	public String changePassword(ModelMap modelMap, HttpServletRequest request) {
 		request.setAttribute("userChangePasswordDto", new UserChangePasswordDto());
@@ -127,7 +74,7 @@ public class UserController extends BaseController {
 				return ajaxJsonResponse;
 			}
 			
-			userChangePasswordDto.setUsername(getAuthUsername(request));
+			userChangePasswordDto.setUserId(getAuthId(request));
 			Boolean result = userService.changepassword(userChangePasswordDto);
 			if (result) {
 				ajaxJsonResponse.setResult(Consts.RESULT_SUCCESS);
@@ -194,31 +141,7 @@ public class UserController extends BaseController {
 		return ajaxJsonResponse;
 	}
 	
-	@RequestMapping(value = "/checkUser", method = RequestMethod.POST)
-	public @ResponseBody AjaxJsonResponse checkUser(HttpServletRequest request) {
-		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
-
-		try {
-			UserDto userDto = userService.findByUsername(request.getParameter("username"));
-			if (userDto != null) {
-				log.debug(" " + userDto.getUsername());
-			}
-			
-			if (userDto != null && !userDto.getUsername().equals("") && userDto.getUsername().equals(request.getParameter("username"))) {
-				ajaxJsonResponse.setReturnValue("Y");
-			}
-			else {
-				ajaxJsonResponse.setReturnValue("N");
-			}
-		}
-		catch (Exception ex) {
-			log.error(ex.getMessage());
-		
-			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
-		}
-		
-		return ajaxJsonResponse;
-	}
+	
 	
 	@RequestMapping(value = "/checkUserPassword", method = RequestMethod.POST)
 	public @ResponseBody AjaxJsonResponse checkUserPassword(HttpServletRequest request) {
@@ -244,7 +167,7 @@ public class UserController extends BaseController {
 	
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
 	public String profile(ModelMap modelMap, HttpServletRequest request) {
-		UserDto userDto = userService.findByUsername(getAuthUsername(request));
+		UserDto userDto = userService.findByUserId(getAuthId(request));
 		
 		request.setAttribute("radioItem", radioItem);
 		request.setAttribute("userDto", userDto);
@@ -257,7 +180,7 @@ public class UserController extends BaseController {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 
 		try {
-			userDto.setUsername(getAuthUsername(request));
+			userDto.setUserId(getAuthId(request) + "");
 			userService.updateProfile(userDto);
 		}
 		catch (Exception ex) {

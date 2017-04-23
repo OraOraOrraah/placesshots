@@ -14,6 +14,11 @@ import com.kugiojotaro.placesshots.util.Consts;
 @Log4j
 public class BaseController {
 	
+	public Integer getAuthId(HttpServletRequest request) {
+		AuthUser authUser = (AuthUser) request.getSession().getAttribute(Consts.AUTHEN_USER);
+		return authUser.getUserId();
+	}
+	
 	public String getAuthUsername(HttpServletRequest request) {
 		AuthUser authUser = (AuthUser) request.getSession().getAttribute(Consts.AUTHEN_USER);
 		return authUser.getUsername();

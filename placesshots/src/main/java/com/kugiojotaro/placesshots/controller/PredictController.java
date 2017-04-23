@@ -56,16 +56,12 @@ public class PredictController extends BaseController {
 	
 	private Map<String,String> dropdownItem;
 	
-	private String getUserDisplayName(HttpServletRequest request) {
-		return "temp";
-	}
-	
 	private void indexInit(ModelMap modelMap, HttpServletRequest request, String week) {
-		log.info(" index (user: " + getUserDisplayName(request) + ", week: " + week + ")");
+		log.info(" index (user: " + getAuthId(request) + ", week: " + week + ")");
 		
 		List<PredictDisplayDto> listPredictDisplayDto = new ArrayList<PredictDisplayDto>();
 		List<FixtureDto> listFixtureDto = fixtureService.findByLeagueAndWeek((short) Consts.EURO_2016, Helper.string2Short(week));
-		List<PredictDto> listPredictDto = predictService.findByUserAndWeek("", Helper.string2Short(week));
+		List<PredictDto> listPredictDto = predictService.findByUserIdAndWeek(getAuthId(request), Helper.string2Short(week));
 		
 		int i = 1;
 		for (FixtureDto fixtureDto : listFixtureDto) {
@@ -93,7 +89,7 @@ public class PredictController extends BaseController {
 		request.setAttribute("week", week);
 		request.setAttribute("listPredictDisplayDto", listPredictDisplayDto);
 		
-		// live, mean avaliable to save
+		// live, = avaliable to save
 		if (Helper.string2Short(week).shortValue() < Helper.string2Short((String) request.getServletContext().getAttribute(Consts.WEEK)).shortValue()) {
 			request.setAttribute("live", "0");
 		}
@@ -152,107 +148,13 @@ public class PredictController extends BaseController {
 		
 		return "predict/index";
 	}
-	
-	@RequestMapping(value = "/extra", method = RequestMethod.GET)
-	public String extra(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		log.info(" extra : " + getAuthUsername(request));
-		
-		String predictedChampionTeam = "";
-		String predictedChampionRound = "";
-			
-		//
-		PredictChampionDto predictChampionDto = predictService.findPredictChampionByUser(getAuthUsername(request));
-
-		String enableSave = "1";
-		String prediected = "N";
-		
-		//if (predictChampionDto != null && !predictChampionDto.getRound().equals((String) request.getServletContext().getAttribute(Consts.ROUND))) {
-		if (predictChampionDto != null) {	
-			prediected = "Y";
-			
-			//
-			TeamDto teamDto = teamService.selectById(Helper.string2Integer(predictChampionDto.getTeamId()));
-			
-			//
-			predictedChampionTeam = teamDto.getShortTitle();
-			predictedChampionRound = predictChampionDto.getRound();
-			
-		}
-		
-		if (predictChampionDto == null) {
-			 predictChampionDto = new PredictChampionDto();
-		}
-			
-		Map<String,String> dropdownItem2 = new LinkedHashMap<String,String>();
-			
-		if (prediected.equals("N")) {
-			//
-			List<FixtureDto> listFixtureDto = fixtureService.findByRound((String) request.getServletContext().getAttribute(Consts.ROUND));
-			for (FixtureDto fixtureDto : listFixtureDto) {
-				dropdownItem2.put(fixtureDto.getHomeId(), fixtureDto.getHomeTitle());
-				dropdownItem2.put(fixtureDto.getAwayId(), fixtureDto.getAwayTitle());
-			}
-		}
-		
-		//
-		predictChampionDto.setRound((String) request.getServletContext().getAttribute(Consts.ROUND));
-		
-		log.info(" prediected: " + prediected);
-		
-		//
-		modelMap.put("predictChampionDto", predictChampionDto);
-		modelMap.put("enableSave", enableSave);
-		modelMap.put("prediected", prediected);
-		modelMap.put("listTeam", dropdownItem2);
-		modelMap.put("predictedChampionTeam", predictedChampionTeam);
-		modelMap.put("predictedChampionRound", predictedChampionRound);
-			
-		return "predict/extra";
-	}
-	
-	@RequestMapping(value = "/extrasave", method = RequestMethod.POST)
-	public @ResponseBody AjaxJsonResponse saveChampion(@ModelAttribute("predictChampionDto") PredictChampionDto predictChampionDto, HttpServletRequest request) {
-		log.info(" extra save : " + getUserDisplayName(request) + ", " + predictChampionDto.getTeamId());
-		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
-		
-		try {
-			if (!predictChampionDto.getRound().equals((String) request.getServletContext().getAttribute("round"))) {
-				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
-				return ajaxJsonResponse;
-			}
-			
-			predictChampionDto.setUser(getAuthUsername(request));
-			predictService.predictChampion(predictChampionDto);
-			
-			ajaxJsonResponse.setResult(Consts.RESULT_SUCCESS);
-		}
-		catch (Exception ex) {
-			log.error(ex.getMessage());
-		
-			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
-		}
-		
-		return ajaxJsonResponse;
-	}
-	
-	/*
-	@RequestMapping(value = "/data/{week}/{uuid}", method = RequestMethod.POST)
-	public String data(ModelMap modelMap, HttpServletRequest request, @PathVariable String week, @PathVariable String uuid) throws Exception {
-		indexInit(modelMap, request, week);
-	    
-	    return "predict/data"; 
-	}
-	*/
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public @ResponseBody AjaxJsonResponse save(HttpServletRequest request) {
 		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
 		
 		try {
-			log.info(" predict save (user: " + getUserDisplayName(request) + ", week: " + request.getParameter("week") + ")");
-			
-			log.debug(" cur week: " + request.getServletContext().getAttribute("week"));
-			log.debug(" req week: " + request.getParameter("week"));
+			log.info(" predict save (user: " + getAuthId(request) + ", week: " + request.getParameter("week") + ")");
 			
 			if (Helper.string2Integer(request.getParameter("week")) >= (Helper.string2Integer((String) request.getServletContext().getAttribute("week")))) {
 				List<PredictDto> listPredictDto = new ArrayList<>();
@@ -260,25 +162,20 @@ public class PredictController extends BaseController {
 				String[] fixtureIds = request.getParameterValues("fixtureId");
 				String[] homeScores = request.getParameterValues("homeScore");
 				String[] awayScores = request.getParameterValues("awayScore");
-				//String[] redCardFlags = request.getParameterValues("redCardFlag");
 				
 				for (int i = 0; i < fixtureIds.length; i++) {
 					if (homeScores[i] != "" && awayScores[i] != "") {
 						PredictDto predictDto = new PredictDto();
-						predictDto.setWeek(request.getParameter("week"));
 						predictDto.setFixtureId(fixtureIds[i]);
 						predictDto.setHomeScore(homeScores[i]);
 						predictDto.setAwayScore(awayScores[i]);
-						/*if (redCardFlags[i].equals("1")) {
-							predictDto.setRedCardFlag("1");
-						}*/
-						predictDto.setUser(getAuthUsername(request));
+						predictDto.setUserId(getAuthId(request) + "");
 						
 						listPredictDto.add(predictDto);
 					}
 				}
 				
-				predictService.predict(getAuthUsername(request), Helper.string2Short(request.getParameter("week")), listPredictDto);
+				predictService.predict(getAuthId(request), Helper.string2Short(request.getParameter("week")), listPredictDto);
 			}
 			else {
 				log.info(" week change!!");
@@ -295,13 +192,13 @@ public class PredictController extends BaseController {
 		return ajaxJsonResponse;
 	}
 	
-	@RequestMapping(value = "/rule", method = RequestMethod.GET)
-	public String rule(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		return "predict/rule";
-	}
+//	@RequestMapping(value = "/rule", method = RequestMethod.GET)
+//	public String rule(ModelMap modelMap, HttpServletRequest request) throws Exception {
+//		return "predict/rule";
+//	}
 	
 	private void resultInit(String week, ModelMap modelMap, HttpServletRequest request) {
-		log.info(" predict result (user: " + getUserDisplayName(request) + ", week: " + week + ")");
+		log.info(" predict result (user: " + getAuthId(request) + ", week: " + week + ")");
 		
 		//
 		List<FixtureDto> listFixtureDto = fixtureService.findByLeagueAndWeek ((short) Consts.EURO_2016, Helper.string2Short(week));
@@ -341,14 +238,6 @@ public class PredictController extends BaseController {
 		    }
 		};
 		Collections.sort(listPredictResultDto, comparator);
-		
-		//
-//		Map<String, String> mapUserIcon = (Map<String, String>) request.getServletContext().getAttribute(Consts.MAP_USER_ICON);
-//		if (mapUserIcon != null) {
-//			for (PredictResultDto predictResultDto : listPredictResultDto) {
-//				predictResultDto.setUserIcon(Helper.null2Blank(mapUserIcon.get(predictResultDto.getUsername())));
-//			}
-//		}
 		
 		request.setAttribute("matchDate", matchDate);
 		request.setAttribute("week", week);
@@ -443,55 +332,13 @@ public class PredictController extends BaseController {
 		return new ModelAndView("predict/extraresult");
 	}
 
-	/*
-	@RequestMapping(value = "/myresult", method = RequestMethod.GET)
-	public String myresult(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		log.info(" myresult: " + ((String) request.getSession().getAttribute(Consts.SESSION_USER)));
-		
-		//
-		List<FixtureDto> listFixtureDto = fixtureService.findByLeague(Consts.WORLD_CUP_2014);
-		
-		List<PredictResultDto> listPredictResultHeaderDto = new ArrayList<PredictResultDto>();
-		PredictResultDto header = new PredictResultDto();
-		header.setPoint(0);
-		for (FixtureDto fixtureDto : listFixtureDto) {
-			PredictResultDetailDto predictResultDetailDto = new PredictResultDetailDto();
-			predictResultDetailDto.setNo(fixtureDto.getHomeShortTitle() + "-" + fixtureDto.getAwayShortTitle() + "<br/>" + Helper.nullObj2Blank(fixtureDto.getHomeScore()) + " - " + Helper.nullObj2Blank(fixtureDto.getAwayScore()));
-			predictResultDetailDto.setHomeTitle(fixtureDto.getHomeTitle());
-			predictResultDetailDto.setHomeShortTitle(fixtureDto.getHomeShortTitle());
-			predictResultDetailDto.setAwayTitle(fixtureDto.getAwayTitle());
-			predictResultDetailDto.setAwayShortTitle(fixtureDto.getAwayShortTitle());
-			predictResultDetailDto.setHomeScore(Helper.nullObj2Blank(fixtureDto.getHomeScore()));
-			predictResultDetailDto.setAwayScore(Helper.nullObj2Blank(fixtureDto.getAwayScore()));
-			predictResultDetailDto.setHomeExtraTimeScore(Helper.nullObj2Blank(fixtureDto.getHomeExtraTimeScore()));
-			predictResultDetailDto.setAwayExtraTimeScore(Helper.nullObj2Blank(fixtureDto.getAwayExtraTimeScore()));
-			if (!Helper.nullObj2Blank(fixtureDto.getHomeExtraTimeScore()).equals("")) {
-				predictResultDetailDto.setHomeTotalScore((Helper.string2Integer(predictResultDetailDto.getHomeScore()) + Helper.string2Integer(predictResultDetailDto.getHomeExtraTimeScore())) + "");
-				predictResultDetailDto.setAwayTotalScore((Helper.string2Integer(predictResultDetailDto.getAwayScore()) + Helper.string2Integer(predictResultDetailDto.getAwayExtraTimeScore())) + "");
-			}
-			predictResultDetailDto.setHomePenaltyScore(Helper.nullObj2Blank(fixtureDto.getHomePenaltyScore()));
-			predictResultDetailDto.setAwayPenaltyScore(Helper.nullObj2Blank(fixtureDto.getAwayPenaltyScore()));
-			header.getListPredictResultDetailDto().add(predictResultDetailDto);
-		}
-		listPredictResultHeaderDto.add(header);
-				
-		List<PredictResultDto> listPredictResultDto = predictService.result(((String) request.getSession().getAttribute(Consts.SESSION_USER)));
-		
-		request.setAttribute("listPredictResultDto", listPredictResultDto);
-		request.setAttribute("listFixtureDto", listFixtureDto);
-		
-		return "predict/myresult";
-	}
-	*/
-	
 	@RequestMapping(value = "/standing", method = RequestMethod.GET)
 	public String standing(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		log.info(" standing (user: " + getUserDisplayName(request) + ")");
+		log.info(" standing (user: " + getAuthId(request) + ")");
 		
 		//
 		Comparator<UserPointDto> comparator = new Comparator<UserPointDto>() {
 		    public int compare(UserPointDto obj1, UserPointDto obj2) {
-		        //return obj2.getPoint() - obj1.getPoint();
 		        int result = obj2.getTotalPoint() - obj1.getTotalPoint();
 		        if (result != 0) {
 		            return result;
@@ -542,11 +389,11 @@ public class PredictController extends BaseController {
 	
 	@RequestMapping(value = "/history", method = RequestMethod.GET)
 	public String performance1(ModelMap modelMap, HttpServletRequest request) throws Exception {
-		log.info(" performance (user: " + getUserDisplayName(request) + ")");
+		log.info(" performance (user: " + getAuthId(request) + ")");
 		
-		String username = getAuthUsername(request);
+		Integer userId = getAuthId(request);
 		//
-		List<UserPredictPerformanceDto> listFixture = predictService.performance(username);
+		List<UserPredictPerformanceDto> listFixture = predictService.performance(userId);
 		request.setAttribute("listFixture", listFixture);
 		
 		int totalPoint = 0;
@@ -557,7 +404,7 @@ public class PredictController extends BaseController {
 				}
 			}
 		}
-		request.setAttribute("predictUser", username);
+		request.setAttribute("predictUser", userId);
 		request.setAttribute("totalPoint", totalPoint);
 		request.setAttribute("week", (String) request.getServletContext().getAttribute("week"));
 		
@@ -565,11 +412,11 @@ public class PredictController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/history/{user}", method = RequestMethod.GET)
-	public String performance2(ModelMap modelMap, HttpServletRequest request, @PathVariable String user) throws Exception {
-		log.info(" performance (user: " + getUserDisplayName(request) + ", view user: " + user + ")");
+	public String performance2(ModelMap modelMap, HttpServletRequest request, @PathVariable String userId) throws Exception {
+		log.info(" performance (user: " + getAuthId(request) + ", view user: " + userId + ")");
 
 		//
-		List<UserPredictPerformanceDto> listFixture = predictService.performance(user);
+		List<UserPredictPerformanceDto> listFixture = predictService.performance(Helper.string2Integer(userId));
 		request.setAttribute("listFixture", listFixture);
 		
 		int totalPoint = 0;
@@ -580,11 +427,92 @@ public class PredictController extends BaseController {
 				}
 			}
 		}
-		request.setAttribute("predictUser", user);
+		request.setAttribute("predictUser", userId);
 		request.setAttribute("totalPoint", totalPoint);
 		request.setAttribute("week", (String) request.getServletContext().getAttribute("week"));
 		
 		return "predict/performance";
+	}
+	
+	@RequestMapping(value = "/extra", method = RequestMethod.GET)
+	public String extra(ModelMap modelMap, HttpServletRequest request) throws Exception {
+		log.info(" extra : " + getAuthId(request));
+		
+		String predictedChampionTeam = "";
+		String predictedChampionRound = "";
+			
+		//
+		PredictChampionDto predictChampionDto = predictService.findPredictChampionByUserId(getAuthId(request));
+
+		String enableSave = "1";
+		String prediected = "N";
+		
+		if (predictChampionDto != null) {	
+			prediected = "Y";
+			
+			//
+			TeamDto teamDto = teamService.selectById(predictChampionDto.getTeamId());
+			
+			//
+			predictedChampionTeam = teamDto.getShortTitle();
+			predictedChampionRound = predictChampionDto.getRound();
+			
+		}
+		
+		if (predictChampionDto == null) {
+			 predictChampionDto = new PredictChampionDto();
+		}
+			
+		Map<String,String> dropdownItem2 = new LinkedHashMap<String,String>();
+			
+		if (prediected.equals("N")) {
+			//
+			List<FixtureDto> listFixtureDto = fixtureService.findByRound((String) request.getServletContext().getAttribute(Consts.ROUND));
+			for (FixtureDto fixtureDto : listFixtureDto) {
+				dropdownItem2.put(fixtureDto.getHomeId(), fixtureDto.getHomeTitle());
+				dropdownItem2.put(fixtureDto.getAwayId(), fixtureDto.getAwayTitle());
+			}
+		}
+		
+		//
+		predictChampionDto.setRound((String) request.getServletContext().getAttribute(Consts.ROUND));
+		
+		log.info(" prediected: " + prediected);
+		
+		//
+		modelMap.put("predictChampionDto", predictChampionDto);
+		modelMap.put("enableSave", enableSave);
+		modelMap.put("prediected", prediected);
+		modelMap.put("listTeam", dropdownItem2);
+		modelMap.put("predictedChampionTeam", predictedChampionTeam);
+		modelMap.put("predictedChampionRound", predictedChampionRound);
+			
+		return "predict/extra";
+	}
+	
+	@RequestMapping(value = "/extrasave", method = RequestMethod.POST)
+	public @ResponseBody AjaxJsonResponse saveChampion(@ModelAttribute("predictChampionDto") PredictChampionDto predictChampionDto, HttpServletRequest request) {
+		log.info(" extra save : " + getAuthId(request) + ", " + predictChampionDto.getTeamId());
+		AjaxJsonResponse ajaxJsonResponse = new AjaxJsonResponse();
+		
+		try {
+			if (!predictChampionDto.getRound().equals((String) request.getServletContext().getAttribute("round"))) {
+				ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
+				return ajaxJsonResponse;
+			}
+			
+			predictChampionDto.setUserId(getAuthId(request));
+			predictService.predictChampion(predictChampionDto);
+			
+			ajaxJsonResponse.setResult(Consts.RESULT_SUCCESS);
+		}
+		catch (Exception ex) {
+			log.error(ex.getMessage());
+		
+			ajaxJsonResponse.setResult(Consts.RESULT_FAIL);
+		}
+		
+		return ajaxJsonResponse;
 	}
 	
 }

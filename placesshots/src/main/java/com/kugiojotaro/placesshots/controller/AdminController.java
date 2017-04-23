@@ -3,16 +3,30 @@ package com.kugiojotaro.placesshots.controller;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.kugiojotaro.placesshots.dto.AjaxJsonResponse;
+import com.kugiojotaro.placesshots.dto.FixtureDto;
+import com.kugiojotaro.placesshots.dto.LeagueDto;
+import com.kugiojotaro.placesshots.dto.TeamDto;
+import com.kugiojotaro.placesshots.service.FixtureService;
+import com.kugiojotaro.placesshots.service.LeagueService;
+import com.kugiojotaro.placesshots.service.TeamService;
 import com.kugiojotaro.placesshots.util.Consts;
 import com.kugiojotaro.placesshots.util.Helper;
 
@@ -22,6 +36,17 @@ import lombok.extern.log4j.Log4j;
 @RequestMapping(value="/adm")
 @Log4j
 public class AdminController {
+	
+	@Autowired
+	private FixtureService fixtureService;
+	
+	@Autowired
+	private TeamService teamService;
+	
+	@Autowired
+	private LeagueService leagueService;
+	
+	private Map<String,String> dropdownItem;
 	
 	@RequestMapping(value="/update_week/{week}", method=RequestMethod.GET)
 	public String updateWeek(ModelMap modelMap, HttpServletRequest request, @PathVariable String week) throws Exception {
@@ -148,5 +173,5 @@ public class AdminController {
 		return "success";
 	}
 	*/
-	
+
 }
